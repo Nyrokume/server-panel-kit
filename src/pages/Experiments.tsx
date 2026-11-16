@@ -1,37 +1,23 @@
 import { useMemo } from 'react'
-import { toast } from 'sonner'
-import { PageHeader } from '@/components/app/common'
-import { KpiCard, ChartFigure, BarsChart, DataTable } from '@/components/app/dataviz'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  PageHeader, KpiStrip, Stat, ChartFrame, Bars, VizTable, NoticeBar, Chip, Button, Segmented,
+  Panel, SectionHeader, Table, THead, TBody, TR, TH, TD, toast,
+} from '@/kit'
 import { useAb, clearAbEvents } from '@/lib/ab'
 import { fmtNumber, fmtPercent, plural } from '@/lib/format'
-import { FlaskConicalIcon, InfoIcon } from 'lucide-react'
+import { FlaskConical, Info } from 'lucide-react'
 
-/* Synthetic preregistered baseline so the readout page is full before many local events accrue;
- * this browser's real events are layered onto the matching arm. */
 export default function Experiments() {
   const { layout, cta, events, force, forced, vid } = useAb()
 
   const stats = useMemo(() => {
-    // Seeded synthetic arm data (preregistered MDE illustration) + this session's real clicks.
     const arms = [
       { key: 'control', label: 'Контроль (строка KPI → графики)', exposures: 1840, clicks: 190 },
       { key: 'split-board', label: 'Вариант (сплит-доска)', exposures: 1795, clicks: 228 },
     ]
     const realViews = events.filter((e) => e.name === 'experiment_viewed')
     const realClicks = events.filter((e) => e.name === 'overview_cta_click')
-    // attribute this visitor's activity to the live arm
-    arms.forEach((a) => {
-      if (a.key === layout) {
-        a.exposures += realViews.length
-        a.clicks += realClicks.length
-      }
-    })
+    arms.forEach((a) => { if (a.key === layout) { a.exposures += realViews.length; a.clicks += realClicks.length } })
     return arms.map((a) => ({ ...a, cr: a.clicks / a.exposures }))
   }, [events, layout])
 
@@ -42,83 +28,69 @@ export default function Experiments() {
 
   return (
     <>
-      <PageHeader title="A/B-тест обзорной страницы" description="Эксперимент сравнивает две раскладки обзора и две формулировки главной кнопки. Назначение детерминированное и «липкое» по браузеру.">
-        <Badge variant="outline" className="gap-1.5"><FlaskConicalIcon className="size-3.5" /> GrowthBook · локально</Badge>
+      <PageHeader title="A/B-тест обзорной страницы" description="Сравнение двух раскладок обзора и двух формулировок главной кнопки. Назначение детерминированное и «липкое» по браузеру.">
+        <Chip tone="neutral"><FlaskConical className="size-3.5" /> GrowthBook · локально</Chip>
       </PageHeader>
 
-      <Alert>
-        <InfoIcon />
-        <AlertTitle>Как это устроено</AlertTitle>
-        <AlertDescription>
-          Флаги оцениваются SDK GrowthBook в браузере, без сети. Ваш вариант: раскладка «{layout === 'control' ? 'контроль' : 'сплит-доска'}», кнопка «{cta === 'control' ? 'Подробнее' : 'Открыть все машины'}». Идентификатор посетителя: <span className="font-mono">{vid}</span>.
-        </AlertDescription>
-      </Alert>
+      <NoticeBar icon={Info} title="Как это устроено">
+        Флаги оцениваются SDK GrowthBook в браузере, без сети. Ваш вариант: раскладка «{layout === 'control' ? 'контроль' : 'сплит-доска'}», кнопка «{cta === 'control' ? 'Подробнее' : 'Открыть все машины'}». Идентификатор посетителя: <span className="font-mono text-fg">{vid}</span>.
+      </NoticeBar>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Показов, контроль" value={fmtNumber(control.exposures)} note={`CR ${fmtPercent(control.cr, { digits: 2 })}`} />
-        <KpiCard label="Показов, вариант" value={fmtNumber(variant.exposures)} note={`CR ${fmtPercent(variant.cr, { digits: 2 })}`} />
-        <KpiCard label="Прирост конверсии" value={fmtPercent(lift, { digits: 1, signed: true })} note="к контролю" />
-        <KpiCard label="Событий в сессии" value={`${events.length}`} note={`${plural(events.length, ['событие', 'события', 'событий'])}`} />
-      </div>
+      <KpiStrip>
+        <Stat label="Показов, контроль" value={fmtNumber(control.exposures)} note={`CR ${fmtPercent(control.cr, { digits: 2 })}`} />
+        <Stat label="Показов, вариант" value={fmtNumber(variant.exposures)} note={`CR ${fmtPercent(variant.cr, { digits: 2 })}`} />
+        <Stat label="Прирост конверсии" value={fmtPercent(lift, { digits: 1, signed: true })} note="к контролю" />
+        <Stat label="Событий в сессии" value={events.length} note={plural(events.length, ['событие', 'события', 'событий'])} />
+      </KpiStrip>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <ChartFigure
-          title={`Вариант даёт конверсию ${fmtPercent(variant.cr, { digits: 2 })} против ${fmtPercent(control.cr, { digits: 2 })}`}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <ChartFrame title={`Вариант даёт конверсию ${fmtPercent(variant.cr, { digits: 2 })} против ${fmtPercent(control.cr, { digits: 2 })}`}
           subtitle="Конверсия в клик по главной кнопке обзора, две группы"
           source="Источник: локальный лог событий A/B (демо-данные)"
-          table={<DataTable head={['Группа', 'CR, %']} rows={chartData.map((d) => [d.label, d.cr])} />}
-        >
-          <BarsChart data={chartData} dataKey="cr" label="Конверсия, %" color="var(--chart-1)" />
-        </ChartFigure>
+          table={<VizTable head={['Группа', 'CR, %']} rows={chartData.map((d) => [d.label, d.cr])} />}>
+          <Bars data={chartData} dataKey="cr" label="Конверсия, %" />
+        </ChartFrame>
 
-        <Card className="overflow-hidden py-0">
-          <CardHeader className="px-5 pt-5"><CardTitle className="text-base">Результаты по группам</CardTitle><CardDescription>ITT, двусторонний тест, α = 0,05</CardDescription></CardHeader>
-          <CardContent className="px-0 pt-3">
+        <Panel flush>
+          <SectionHeader className="border-b border-line p-4" title="Результаты по группам" description="ITT, двусторонний тест, α = 0,05" />
+          <div className="overflow-x-auto pk-scroll">
             <Table>
-              <TableHeader>
-                <TableRow><TableHead className="pl-5">Группа</TableHead><TableHead className="text-right">Показы</TableHead><TableHead className="text-right">Клики</TableHead><TableHead className="pr-5 text-right">CR</TableHead></TableRow>
-              </TableHeader>
-              <TableBody>
+              <THead><tr className="border-b border-line"><TH className="pl-4">Группа</TH><TH align="right">Показы</TH><TH align="right">Клики</TH><TH align="right" className="pr-4">CR</TH></tr></THead>
+              <TBody>
                 {stats.map((a) => (
-                  <TableRow key={a.key}>
-                    <TableCell className="pl-5"><div className="font-medium">{a.key === 'control' ? 'Контроль' : 'Вариант'}</div><div className="text-xs text-muted-foreground">{a.label}</div></TableCell>
-                    <TableCell className="text-right tabular-nums">{fmtNumber(a.exposures)}</TableCell>
-                    <TableCell className="text-right tabular-nums">{fmtNumber(a.clicks)}</TableCell>
-                    <TableCell className="pr-5 text-right tabular-nums font-medium">{fmtPercent(a.cr, { digits: 2 })}</TableCell>
-                  </TableRow>
+                  <TR key={a.key}>
+                    <TD className="pl-4"><div className="font-medium text-fg">{a.key === 'control' ? 'Контроль' : 'Вариант'}</div><div className="text-xs text-muted">{a.label}</div></TD>
+                    <TD align="right">{fmtNumber(a.exposures)}</TD>
+                    <TD align="right">{fmtNumber(a.clicks)}</TD>
+                    <TD align="right" className="pr-4 font-medium">{fmtPercent(a.cr, { digits: 2 })}</TD>
+                  </TR>
                 ))}
-              </TableBody>
+              </TBody>
             </Table>
-            <div className="px-5 py-3 text-xs text-muted-foreground">Прирост {fmtPercent(lift, { digits: 1, signed: true })}. Для достоверного вывода нужен расчёт мощности и полный бизнес-цикл — это демонстрация чтения результатов.</div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="border-t border-line px-4 py-3 text-xs text-muted">Прирост {fmtPercent(lift, { digits: 1, signed: true })}. Для достоверного вывода нужен расчёт мощности и полный бизнес-цикл — это демонстрация чтения результатов.</div>
+        </Panel>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle className="text-base">Переопределить вариант (QA)</CardTitle><CardDescription>Принудительно включите группу, чтобы проверить обе раскладки. Сохраняется для этого браузера.</CardDescription></CardHeader>
-        <CardContent className="flex flex-col gap-4">
+      <Panel flush>
+        <SectionHeader className="border-b border-line p-4" title="Переопределить вариант (QA)" description="Принудительно включите группу, чтобы проверить обе раскладки. Сохраняется для этого браузера." />
+        <div className="flex flex-col gap-4 p-4">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="w-36 text-sm">Раскладка обзора</span>
-            <ToggleGroup type="single" variant="outline" value={forced['overview_layout'] ?? ''} onValueChange={(v) => force('overview_layout', v || null)}>
-              <ToggleGroupItem value="">Авто</ToggleGroupItem>
-              <ToggleGroupItem value="control">Контроль</ToggleGroupItem>
-              <ToggleGroupItem value="split-board">Сплит-доска</ToggleGroupItem>
-            </ToggleGroup>
+            <span className="w-36 text-sm text-muted">Раскладка обзора</span>
+            <Segmented value={forced['overview_layout'] ?? ''} onValueChange={(v) => force('overview_layout', v || null)} ariaLabel="Раскладка"
+              options={[{ value: '', label: 'Авто' }, { value: 'control', label: 'Контроль' }, { value: 'split-board', label: 'Сплит-доска' }]} />
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="w-36 text-sm">Текст кнопки</span>
-            <ToggleGroup type="single" variant="outline" value={forced['overview_cta'] ?? ''} onValueChange={(v) => force('overview_cta', v || null)}>
-              <ToggleGroupItem value="">Авто</ToggleGroupItem>
-              <ToggleGroupItem value="control">Подробнее</ToggleGroupItem>
-              <ToggleGroupItem value="action">Открыть все машины</ToggleGroupItem>
-            </ToggleGroup>
+            <span className="w-36 text-sm text-muted">Текст кнопки</span>
+            <Segmented value={forced['overview_cta'] ?? ''} onValueChange={(v) => force('overview_cta', v || null)} ariaLabel="Текст кнопки"
+              options={[{ value: '', label: 'Авто' }, { value: 'control', label: 'Подробнее' }, { value: 'action', label: 'Открыть все машины' }]} />
           </div>
-        </CardContent>
-        <CardFooter className="gap-2">
+        </div>
+        <div className="flex flex-wrap gap-2 border-t border-line p-4">
           <Button variant="outline" onClick={() => { clearAbEvents(); toast.success('Лог событий очищен'); location.reload() }}>Очистить лог событий</Button>
           <Button variant="ghost" onClick={() => { force('overview_layout', null); force('overview_cta', null); toast.success('Переопределения сброшены') }}>Сбросить переопределения</Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </Panel>
     </>
   )
 }

@@ -6,8 +6,8 @@ import { ThemeProvider } from './lib/theme'
 import { LiveProvider } from './lib/live'
 import { AppStateProvider } from './lib/app-state'
 import { AbProvider } from './lib/ab'
-import { Toaster } from './components/ui/sonner'
-import { TooltipProvider } from './components/ui/tooltip'
+import { TooltipProvider } from './kit'
+import { ToastHost } from './kit'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -17,9 +17,9 @@ createRoot(document.getElementById('root')!).render(
         <AppStateProvider>
           <LiveProvider>
             <AbProvider>
-              <TooltipProvider delayDuration={200}>
+              <TooltipProvider>
                 <App />
-                <Toaster richColors position="bottom-right" />
+                <ToastHost />
               </TooltipProvider>
             </AbProvider>
           </LiveProvider>

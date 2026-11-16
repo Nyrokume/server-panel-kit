@@ -1,149 +1,120 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
 
+/* ============================================================================
+   Panel-kit — собственная дизайн-система проекта (минимализм, моно + один акцент)
+   Токены живут здесь; shadcn и его переменные удалены.
+   ========================================================================== */
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Inter Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
-}
-
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  /* поверхности: почти белое, тонкая иерархия */
+  --pk-bg: oklch(0.993 0 0);
+  --pk-surface: oklch(0.975 0 0);
+  --pk-raised: oklch(1 0 0);
+  --pk-fg: oklch(0.205 0 0);
+  --pk-muted: oklch(0.53 0 0);
+  --pk-faint: oklch(0.66 0 0);
+  --pk-line: oklch(0.912 0 0);
+  --pk-line-strong: oklch(0.84 0 0);
+  /* один сдержанный акцент */
+  --pk-accent: oklch(0.52 0.11 252);
+  --pk-accent-fg: oklch(0.99 0 0);
+  --pk-accent-weak: oklch(0.95 0.03 252);
+  /* статусы — только для реальных состояний */
+  --pk-ok: oklch(0.56 0.12 150);
+  --pk-warn: oklch(0.67 0.13 70);
+  --pk-bad: oklch(0.55 0.2 26);
+  /* графики: акцент + 3 нейтрали */
+  --pk-c1: var(--pk-accent);
+  --pk-c2: oklch(0.6 0 0);
+  --pk-c3: oklch(0.74 0 0);
+  --pk-c4: oklch(0.45 0.06 252);
+  --pk-radius: 7px;
+  --pk-ring: color-mix(in oklab, var(--pk-accent) 55%, transparent);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  --pk-bg: oklch(0.165 0 0);
+  --pk-surface: oklch(0.205 0 0);
+  --pk-raised: oklch(0.225 0 0);
+  --pk-fg: oklch(0.965 0 0);
+  --pk-muted: oklch(0.68 0 0);
+  --pk-faint: oklch(0.56 0 0);
+  --pk-line: oklch(1 0 0 / 11%);
+  --pk-line-strong: oklch(1 0 0 / 20%);
+  --pk-accent: oklch(0.72 0.1 252);
+  --pk-accent-fg: oklch(0.16 0.02 252);
+  --pk-accent-weak: oklch(0.3 0.06 252 / 45%);
+  --pk-ok: oklch(0.74 0.13 152);
+  --pk-warn: oklch(0.8 0.12 78);
+  --pk-bad: oklch(0.7 0.17 25);
+  --pk-c1: var(--pk-accent);
+  --pk-c2: oklch(0.66 0 0);
+  --pk-c3: oklch(0.5 0 0);
+  --pk-c4: oklch(0.62 0.08 252);
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+
+  --color-bg: var(--pk-bg);
+  --color-surface: var(--pk-surface);
+  --color-raised: var(--pk-raised);
+  --color-fg: var(--pk-fg);
+  --color-muted: var(--pk-muted);
+  --color-faint: var(--pk-faint);
+  --color-line: var(--pk-line);
+  --color-line-strong: var(--pk-line-strong);
+  --color-accent: var(--pk-accent);
+  --color-accent-fg: var(--pk-accent-fg);
+  --color-accent-weak: var(--pk-accent-weak);
+  --color-ok: var(--pk-ok);
+  --color-warn: var(--pk-warn);
+  --color-bad: var(--pk-bad);
+  --color-c1: var(--pk-c1);
+  --color-c2: var(--pk-c2);
+  --color-c3: var(--pk-c3);
+  --color-c4: var(--pk-c4);
+
+  --radius-pk: var(--pk-radius);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-    }
+  * { border-color: var(--pk-line); }
+  html { color-scheme: light dark; -webkit-text-size-adjust: 100%; }
   body {
-    @apply bg-background text-foreground;
-    }
-  button:not(:disabled), [role="button"]:not(:disabled) {
-    cursor: pointer;
-    }
-  html {
-    @apply font-sans;
-    }
+    background: var(--pk-bg);
+    color: var(--pk-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv05' 1, 'ss01' 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* тактильность: едва заметный отклик на нажатие у интерактивных */
+  button:not(:disabled), [role="button"]:not(:disabled), a { cursor: pointer; }
+  ::selection { background: color-mix(in oklab, var(--pk-accent) 28%, transparent); }
+  :focus-visible { outline: 2px solid var(--pk-ring); outline-offset: 2px; border-radius: 4px; }
+  /* числа метрик — табличные моноширинные */
+  .tnum { font-variant-numeric: tabular-nums lining-nums; }
 }
-/* Recharts v3 dark-theme axis-label safeguard (issue #10477): force muted-foreground on tick text. */
+
+/* Recharts: подписи осей в обеих темах + видимый фокус (правило дата-виз) */
 .recharts-cartesian-axis-tick text,
 .recharts-cartesian-axis-tick-value,
-.recharts-cartesian-axis-tick-label {
-  fill: var(--muted-foreground);
-  font-variant-numeric: tabular-nums;
+.recharts-cartesian-axis-tick-label { fill: var(--pk-muted); font-variant-numeric: tabular-nums; }
+.recharts-wrapper:focus-visible, .recharts-surface:focus-visible { outline: 2px solid var(--pk-ring); outline-offset: 2px; }
+
+/* утилита: hairline-разделители и скрытие нативного скроллбара терминала */
+.pk-scroll { scrollbar-width: thin; scrollbar-color: var(--pk-line-strong) transparent; }
+.pk-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.pk-scroll::-webkit-scrollbar-thumb { background: var(--pk-line-strong); border-radius: 8px; }
+
+/* subtle motion for overlays/popovers (replaces tw-animate-css) */
+@keyframes pk-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pk-pop { from { opacity: 0; transform: translateY(2px) scale(.985) } to { opacity: 1; transform: translateY(0) scale(1) } }
+@media (prefers-reduced-motion: no-preference) {
+  .pk-overlay[data-state="open"] { animation: pk-fade .14s ease-out }
+  .pk-pop[data-state="open"], .pk-pop[data-state="delayed-open"] { animation: pk-pop .15s cubic-bezier(.2,.7,.2,1) }
 }
-.recharts-wrapper:focus-visible,
-.recharts-surface:focus-visible,
-.recharts-surface [tabindex]:focus-visible {
-  outline: 2px solid var(--chart-1);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-/* Footer safe-area padding (standing rule) */
-main { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }

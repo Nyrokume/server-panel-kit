@@ -1,117 +1,95 @@
-import { toast } from 'sonner'
-import { PageHeader } from '@/components/app/common'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Field, FieldGroup, FieldLabel, FieldDescription, FieldSet, FieldLegend } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
+import { useState } from 'react'
+import {
+  PageHeader, Panel, SectionHeader, Tabs, TabsList, TabsTab, TabsPanel,
+  Field, Input, Select, SelectItem, Switch, Button, Chip, toast, Divider,
+} from '@/kit'
 import { useTheme } from '@/lib/theme'
 import { useLive } from '@/lib/live'
 import { tenants } from '@/lib/mock'
-import { useState } from 'react'
+
+function ToggleRow({ title, hint, checked, defaultChecked, onCheckedChange }: {
+  title: string; hint: string; checked?: boolean; defaultChecked?: boolean; onCheckedChange?: (v: boolean) => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3">
+      <div className="min-w-0"><div className="text-sm font-medium text-fg">{title}</div><div className="text-xs text-muted">{hint}</div></div>
+      <Switch checked={checked} defaultChecked={defaultChecked} onCheckedChange={onCheckedChange} ariaLabel={title} />
+    </div>
+  )
+}
 
 export default function Settings() {
   const { theme, toggle } = useTheme()
   const { paused, setPaused } = useLive()
-  const [interval, setInterval] = useState([2])
+  const [interval, setIntervalV] = useState(2)
 
   return (
     <>
       <PageHeader title="Настройки" description="Параметры организации, безопасности и мониторинга. Демо: изменения не сохраняются на сервере." />
 
-      <Tabs defaultValue="org" className="gap-4">
+      <Tabs defaultValue="org">
         <TabsList>
-          <TabsTrigger value="org">Организация</TabsTrigger>
-          <TabsTrigger value="monitoring">Мониторинг</TabsTrigger>
-          <TabsTrigger value="security">Безопасность</TabsTrigger>
-          <TabsTrigger value="appearance">Вид</TabsTrigger>
+          <TabsTab value="org">Организация</TabsTab>
+          <TabsTab value="monitoring">Мониторинг</TabsTab>
+          <TabsTab value="security">Безопасность</TabsTab>
+          <TabsTab value="appearance">Вид</TabsTab>
         </TabsList>
 
-        <TabsContent value="org">
-          <Card>
-            <CardHeader><CardTitle>Организация</CardTitle><CardDescription>Профиль арендатора и контактные данные.</CardDescription></CardHeader>
-            <CardContent>
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="org-name">Название</FieldLabel>
-                  <Input id="org-name" defaultValue="Кедр Логистика" />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="org-tenant">Активная организация</FieldLabel>
-                  <Select defaultValue={tenants[0].id}>
-                    <SelectTrigger id="org-tenant"><SelectValue /></SelectTrigger>
-                    <SelectContent>{tenants.map((t) => <SelectItem key={t.id} value={t.id}>{t.name} · {t.plan}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <FieldDescription>Панель поддерживает несколько организаций с переключением в шапке.</FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="org-contact">Контакт для оповещений</FieldLabel>
-                  <Input id="org-contact" type="email" defaultValue="noc@kedr.ru" />
-                </Field>
-              </FieldGroup>
-            </CardContent>
-            <CardFooter><Button onClick={() => toast.success('Профиль сохранён', { description: 'Демо: на сервер не отправлено.' })}>Сохранить</Button></CardFooter>
-          </Card>
-        </TabsContent>
+        <TabsPanel value="org">
+          <Panel flush className="max-w-xl">
+            <SectionHeader className="border-b border-line p-4" title="Организация" description="Профиль арендатора и контактные данные." />
+            <div className="flex flex-col gap-4 p-4">
+              <Field label="Название" htmlFor="org-name"><Input id="org-name" defaultValue="Кедр Логистика" /></Field>
+              <Field label="Активная организация" htmlFor="org-tenant" hint="Панель поддерживает несколько организаций с переключением в шапке.">
+                <Select value={tenants[0].id} onValueChange={() => {}} ariaLabel="Организация">
+                  {tenants.map((t) => <SelectItem key={t.id} value={t.id}>{t.name} · {t.plan}</SelectItem>)}
+                </Select>
+              </Field>
+              <Field label="Контакт для оповещений" htmlFor="org-contact"><Input id="org-contact" type="email" defaultValue="noc@kedr.ru" /></Field>
+              <div><Button onClick={() => toast.success('Профиль сохранён', 'Демо: на сервер не отправлено.')}>Сохранить</Button></div>
+            </div>
+          </Panel>
+        </TabsPanel>
 
-        <TabsContent value="monitoring">
-          <Card>
-            <CardHeader><CardTitle>Мониторинг</CardTitle><CardDescription>Частота опроса агентов и пороги оповещений.</CardDescription></CardHeader>
-            <CardContent>
-              <FieldGroup>
-                <Field orientation="horizontal">
-                  <div className="flex flex-col gap-0.5"><FieldLabel>Живое обновление</FieldLabel><FieldDescription>Опрашивать агенты в реальном времени.</FieldDescription></div>
-                  <Switch checked={!paused} onCheckedChange={(v) => setPaused(!v)} />
-                </Field>
-                <Field>
-                  <FieldLabel>Интервал опроса: {interval[0]} с</FieldLabel>
-                  <Slider value={interval} onValueChange={setInterval} min={1} max={10} step={1} className="max-w-sm" />
-                  <FieldDescription>Для демо фактический интервал зафиксирован на 2 секундах.</FieldDescription>
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="cpu-th">Порог CPU для предупреждения, %</FieldLabel>
-                  <Input id="cpu-th" type="number" defaultValue={85} className="max-w-32" />
-                </Field>
-              </FieldGroup>
-            </CardContent>
-            <CardFooter><Button onClick={() => toast.success('Параметры мониторинга применены')}>Применить</Button></CardFooter>
-          </Card>
-        </TabsContent>
+        <TabsPanel value="monitoring">
+          <Panel flush className="max-w-xl">
+            <SectionHeader className="border-b border-line p-4" title="Мониторинг" description="Частота опроса агентов и пороги оповещений." />
+            <div className="flex flex-col p-4">
+              <ToggleRow title="Живое обновление" hint="Опрашивать агенты в реальном времени." checked={!paused} onCheckedChange={(v) => setPaused(!v)} />
+              <Divider />
+              <div className="py-3">
+                <div className="flex items-center justify-between text-sm"><span className="font-medium text-fg">Интервал опроса</span><span className="tnum text-muted">{interval} с</span></div>
+                <input type="range" min={1} max={10} step={1} value={interval} onChange={(e) => setIntervalV(Number(e.target.value))} className="mt-2 w-full accent-[var(--pk-accent)]" />
+                <div className="text-xs text-muted">Для демо фактический интервал зафиксирован на 2 секундах.</div>
+              </div>
+              <Divider />
+              <Field label="Порог CPU для предупреждения, %" htmlFor="cpu-th" className="py-3"><Input id="cpu-th" type="number" defaultValue={85} className="max-w-32" /></Field>
+              <div className="pt-1"><Button onClick={() => toast.success('Параметры мониторинга применены')}>Применить</Button></div>
+            </div>
+          </Panel>
+        </TabsPanel>
 
-        <TabsContent value="security">
-          <Card>
-            <CardHeader><CardTitle>Безопасность</CardTitle><CardDescription>Доступ, двухфакторная аутентификация и аудит.</CardDescription></CardHeader>
-            <CardContent>
-              <FieldSet>
-                <FieldLegend>Политики</FieldLegend>
-                <FieldGroup>
-                  <Field orientation="horizontal"><div className="flex flex-col gap-0.5"><FieldLabel>Обязательная MFA</FieldLabel><FieldDescription>Требовать второй фактор для администраторов.</FieldDescription></div><Switch defaultChecked /></Field>
-                  <Field orientation="horizontal"><div className="flex flex-col gap-0.5"><FieldLabel>Подтверждение опасных действий</FieldLabel><FieldDescription>Перезагрузка и выключение требуют ввода имени машины.</FieldDescription></div><Switch defaultChecked /></Field>
-                  <Field orientation="horizontal"><div className="flex flex-col gap-0.5"><FieldLabel>Журнал аудита</FieldLabel><FieldDescription>Записывать все команды и просмотры экрана.</FieldDescription></div><Switch defaultChecked /></Field>
-                </FieldGroup>
-              </FieldSet>
-            </CardContent>
-            <CardFooter className="gap-2"><Button onClick={() => toast.success('Политики безопасности сохранены')}>Сохранить</Button><Badge variant="outline">Соответствие 152-ФЗ</Badge></CardFooter>
-          </Card>
-        </TabsContent>
+        <TabsPanel value="security">
+          <Panel flush className="max-w-xl">
+            <SectionHeader className="border-b border-line p-4" title="Безопасность" description="Доступ, двухфакторная аутентификация и аудит." />
+            <div className="flex flex-col divide-y divide-line p-4 pt-0">
+              <ToggleRow title="Обязательная MFA" hint="Требовать второй фактор для администраторов." defaultChecked />
+              <ToggleRow title="Подтверждение опасных действий" hint="Перезагрузка и выключение требуют ввода имени машины." defaultChecked />
+              <ToggleRow title="Журнал аудита" hint="Записывать все команды и просмотры экрана." defaultChecked />
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-line p-4">
+              <Button onClick={() => toast.success('Политики безопасности сохранены')}>Сохранить</Button>
+              <Chip tone="neutral">Соответствие 152-ФЗ</Chip>
+            </div>
+          </Panel>
+        </TabsPanel>
 
-        <TabsContent value="appearance">
-          <Card>
-            <CardHeader><CardTitle>Вид</CardTitle><CardDescription>Тема оформления панели.</CardDescription></CardHeader>
-            <CardContent>
-              <FieldGroup>
-                <Field orientation="horizontal">
-                  <div className="flex flex-col gap-0.5"><FieldLabel>Тёмная тема</FieldLabel><FieldDescription>Сейчас: {theme === 'dark' ? 'тёмная' : 'светлая'}.</FieldDescription></div>
-                  <Switch checked={theme === 'dark'} onCheckedChange={toggle} />
-                </Field>
-              </FieldGroup>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <TabsPanel value="appearance">
+          <Panel flush className="max-w-xl">
+            <SectionHeader className="border-b border-line p-4" title="Вид" description="Тема оформления панели." />
+            <div className="p-4"><ToggleRow title="Тёмная тема" hint={`Сейчас: ${theme === 'dark' ? 'тёмная' : 'светлая'}.`} checked={theme === 'dark'} onCheckedChange={toggle} /></div>
+          </Panel>
+        </TabsPanel>
       </Tabs>
     </>
   )

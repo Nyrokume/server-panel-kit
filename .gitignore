@@ -7,3 +7,5 @@ shots
 shot.cjs
 overlap.cjs
 probe*.cjs
+shots-v2
+*.cjs
