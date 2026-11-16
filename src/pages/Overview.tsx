@@ -6,7 +6,6 @@ import {
 } from '@/kit'
 import { useAppState } from '@/lib/app-state'
 import { useLive, fleetFor } from '@/lib/live'
-import { useAb } from '@/lib/ab'
 import { alerts, machineById } from '@/lib/mock'
 import { fmtDelta, fmtNumber, fmtUptime, plural, ago } from '@/lib/format'
 import { ArrowRight, Server, Monitor } from 'lucide-react'
@@ -14,7 +13,6 @@ import { ArrowRight, Server, Monitor } from 'lucide-react'
 export default function Overview() {
   const { tenant } = useAppState()
   const { samples, history, tick } = useLive()
-  const { layout, cta, track } = useAb()
   const fleet = fleetFor(tenant)
 
   const stats = useMemo(() => {
@@ -54,7 +52,6 @@ export default function Overview() {
   const hottest = [...fleet].filter((m) => m.status !== 'offline').sort((a, b) => (samples[b.id]?.cpu ?? 0) - (samples[a.id]?.cpu ?? 0)).slice(0, 5)
   const prevCpu = trend.length > 6 ? trend[trend.length - 6].cpu : stats.cpu
   const prevRam = trend.length > 6 ? trend[trend.length - 6].ram : stats.ram
-  const ctaLabel = cta === 'action' ? 'Открыть все машины' : 'Подробнее'
 
   const kpis = (
     <KpiStrip>
@@ -134,21 +131,13 @@ export default function Overview() {
     <>
       <PageHeader title="Обзор парка" description={`Состояние серверов и рабочих станций в реальном времени. ${stats.servers} ${plural(stats.servers, ['сервер', 'сервера', 'серверов'])}, ${stats.total - stats.servers} ${plural(stats.total - stats.servers, ['станция', 'станции', 'станций'])}.`}>
         <Chip tone="neutral" className="gap-1.5"><StatusDot status={stats.warning > 0 ? 'warning' : 'online'} withLabel={false} />{fmtUptime(Math.max(...fleet.map((m) => (Date.now() - m.bootAt) / 1000)))} аптайм лидера</Chip>
-        <Button variant="solid" asChild onClick={() => track('overview_cta_click', { cta })}><Link to="/machines">{ctaLabel} <ArrowRight className="size-4" /></Link></Button>
+        <Button variant="solid" asChild><Link to="/machines">Подробнее <ArrowRight className="size-4" /></Link></Button>
       </PageHeader>
 
-      {layout === 'split-board' ? (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-          <div className="flex flex-col gap-4">{kpis}{cpuChart}{hottestPanel}</div>
-          <div className="flex flex-col gap-4">{roleChart}{alertsPanel}</div>
-        </div>
-      ) : (
-        <>
-          {kpis}
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">{cpuChart}{roleChart}</div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">{hottestPanel}{alertsPanel}</div>
-        </>
-      )}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <div className="flex flex-col gap-4">{kpis}{cpuChart}{hottestPanel}</div>
+        <div className="flex flex-col gap-4">{roleChart}{alertsPanel}</div>
+      </div>
     </>
   )
 }

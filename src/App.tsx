@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router'
+import { Routes, Route, Navigate } from 'react-router'
 import { AppShell } from './components/app/shell'
 import Overview from './pages/Overview'
 import { Spinner } from './kit'
@@ -13,7 +13,6 @@ const Screen = lazy(() => import('./pages/Screen'))
 const Processes = lazy(() => import('./pages/Processes'))
 const Disks = lazy(() => import('./pages/Disks'))
 const Users = lazy(() => import('./pages/Users'))
-const Experiments = lazy(() => import('./pages/Experiments'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Kit = lazy(() => import('./pages/Kit'))
 
@@ -35,10 +34,11 @@ export default function App() {
         <Route path="/processes" element={<Suspense fallback={<Loading />}><Processes /></Suspense>} />
         <Route path="/disks" element={<Suspense fallback={<Loading />}><Disks /></Suspense>} />
         <Route path="/users" element={<Suspense fallback={<Loading />}><Users /></Suspense>} />
-        <Route path="/experiments" element={<Suspense fallback={<Loading />}><Experiments /></Suspense>} />
+        <Route path="/experiments" element={<Navigate to="/" replace />} />
         <Route path="/settings" element={<Suspense fallback={<Loading />}><Settings /></Suspense>} />
         <Route path="/kit" element={<Suspense fallback={<Loading />}><Kit /></Suspense>} />
       </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

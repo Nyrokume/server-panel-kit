@@ -11,7 +11,6 @@ import { tenants, alerts, machineById } from '@/lib/mock'
 import { useAppState } from '@/lib/app-state'
 import { useTheme } from '@/lib/theme'
 import { useLive } from '@/lib/live'
-import { useAb } from '@/lib/ab'
 import { Building2, ChevronsUpDown, Moon, Sun, Bell, Pause, Play, Menu as MenuIcon, ShieldCheck, LayoutGrid } from 'lucide-react'
 
 function TenantSwitcher({ compact }: { compact?: boolean }) {
@@ -93,7 +92,6 @@ export function AppShell() {
   const { pathname } = useLocation()
   const { theme, toggle } = useTheme()
   const { tenant } = useAppState()
-  const { layout, cta } = useAb()
   const [cmdOpen, setCmdOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const openAlerts = alerts.filter((a) => !a.acked && (tenant === 'all' || machineById(a.machineId)?.tenantId === tenant))
@@ -136,7 +134,6 @@ export function AppShell() {
           <span className="hidden min-w-0 flex-1 sm:block lg:max-w-64"><CommandButton onClick={() => setCmdOpen(true)} /></span>
           <span className="flex-1 sm:hidden" />
           <div className="ml-auto flex shrink-0 items-center gap-1.5">
-            <span data-ab-layout={layout} data-ab-cta={cta} className="sr-only">ab</span>
             <IconButton label="Поиск" className="sm:hidden" onClick={() => setCmdOpen(true)}><LayoutGrid className="size-5" /></IconButton>
             <LivePill />
             <Tooltip content={`Открытых оповещений: ${openAlerts.length}`}>
