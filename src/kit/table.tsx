@@ -44,6 +44,7 @@ export type Column<T> = {
   meta?: boolean             // secondary line under the title in mobile card
   tableOnly?: boolean        // show only in table (hidden in mobile card)
   hideBelow?: 'sm' | 'lg'    // hide this column in table on smaller widths
+  wide?: boolean             // span both columns in the mobile card
   thClassName?: string
   tdClassName?: string
 }
@@ -109,7 +110,7 @@ export function DataList<T>({ columns, rows, rowKey, onRowClick, sortKey, sortDi
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5">
               {cardCols.map((c) => (
-                <div key={c.key} className="flex min-w-0 flex-col gap-0.5">
+                <div key={c.key} className={cn('flex min-w-0 flex-col gap-0.5', c.wide && 'col-span-2')}>
                   <dt className="text-[11px] uppercase tracking-wide text-faint">{c.header}</dt>
                   <dd className={cn('text-sm text-fg', c.align === 'right' && 'tnum')}>{c.cell(r)}</dd>
                 </div>

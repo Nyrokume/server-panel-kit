@@ -9,9 +9,9 @@ export function Select({ value, onValueChange, children, className, ariaLabel }:
 }) {
   return (
     <S.Root value={value} onValueChange={onValueChange}>
-      <S.Trigger aria-label={ariaLabel} className={cn('inline-flex h-9 items-center justify-between gap-2 rounded-[var(--radius-pk)] border border-line bg-raised px-3 text-sm text-fg outline-none transition-colors hover:bg-surface focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-[var(--pk-ring)] data-[placeholder]:text-faint', className)}>
-        <S.Value />
-        <S.Icon><ChevronDown className="size-4 text-muted" /></S.Icon>
+      <S.Trigger aria-label={ariaLabel} className={cn('inline-flex h-9 min-w-0 items-center justify-between gap-2 rounded-[var(--radius-pk)] border border-line bg-raised px-3 text-sm text-fg outline-none transition-colors hover:bg-surface focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-[var(--pk-ring)] data-[placeholder]:text-faint', className)}>
+        <span className="min-w-0 truncate"><S.Value /></span>
+        <S.Icon className="shrink-0"><ChevronDown className="size-4 text-muted" /></S.Icon>
       </S.Trigger>
       <S.Portal>
         <S.Content position="popper" sideOffset={6} className="pk-pop z-50 max-h-[min(24rem,var(--radix-select-content-available-height))] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[var(--radius-pk)] border border-line bg-raised p-1 shadow-lg">
@@ -49,11 +49,19 @@ export function Tabs({ value, defaultValue, onValueChange, children, className }
   return <TB.Root value={value} defaultValue={defaultValue} onValueChange={onValueChange} className={cn('flex flex-col gap-4', className)}>{children}</TB.Root>
 }
 export function TabsList({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <TB.List className={cn('inline-flex items-center gap-1 overflow-x-auto border-b border-line pk-scroll', className)}>{children}</TB.List>
+  const ref = React.useRef<HTMLDivElement>(null)
+  // keep the active tab visible when the list scrolls horizontally (mobile)
+  React.useLayoutEffect(() => {
+    const el = ref.current; const a = el?.querySelector<HTMLElement>('[data-state="active"]')
+    if (!el || !a || el.scrollWidth <= el.clientWidth) return
+    const l = a.offsetLeft - el.offsetLeft, r = l + a.offsetWidth
+    if (l < el.scrollLeft || r > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, l - 24)
+  })
+  return <TB.List ref={ref} className={cn('flex max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden border-b border-line pk-scroll', className)}>{children}</TB.List>
 }
 export function TabsTab({ value, children }: { value: string; children: React.ReactNode }) {
   return (
-    <TB.Trigger value={value} className="relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm text-muted outline-none transition-colors hover:text-fg focus-visible:text-fg data-[state=active]:border-accent data-[state=active]:text-fg">
+    <TB.Trigger value={value} className="relative -mb-px min-h-11 shrink-0 whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm sm:min-h-9 text-muted outline-none transition-colors hover:text-fg focus-visible:text-fg data-[state=active]:border-accent data-[state=active]:text-fg">
       {children}
     </TB.Trigger>
   )

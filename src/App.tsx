@@ -15,6 +15,7 @@ const Disks = lazy(() => import('./pages/Disks'))
 const Users = lazy(() => import('./pages/Users'))
 const Settings = lazy(() => import('./pages/Settings'))
 const Kit = lazy(() => import('./pages/Kit'))
+const Architecture = lazy(() => import('./pages/Architecture'))
 
 function Loading() {
   return <div className="flex min-h-[40vh] items-center justify-center text-muted"><Spinner /></div>
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/users" element={<Suspense fallback={<Loading />}><Users /></Suspense>} />
         <Route path="/experiments" element={<Navigate to="/" replace />} />
         <Route path="/settings" element={<Suspense fallback={<Loading />}><Settings /></Suspense>} />
+        <Route path="/architecture" element={<Suspense fallback={<Loading />}><Architecture /></Suspense>} />
         <Route path="/kit" element={<Suspense fallback={<Loading />}><Kit /></Suspense>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

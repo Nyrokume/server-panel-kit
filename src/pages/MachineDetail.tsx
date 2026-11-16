@@ -1,20 +1,33 @@
 import { useMemo } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { ServicesTab } from './admin/Services'
+import { SoftwareTab } from './admin/Software'
+import { SessionsTab } from './admin/Sessions'
+import { TasksTab } from './admin/Tasks'
+import { EventsTab } from './admin/Events'
+import { NetworkTab } from './admin/Network'
+import { PowerTab } from './admin/Power'
+import { FilesTab } from './admin/Files'
+import { RemoteAssist } from './admin/RemoteAssist'
+import { Tabs, TabsList, TabsTab, TabsPanel } from '@/kit'
+import { adminTabs } from '@/lib/nav'
 import {
   PageHeader, KpiStrip, Stat, Sparkline, ChartFrame, TimeLine, VizTable,
-  StatusDot, UsageBar, Panel, SectionHeader, InfoRow, Button, ConfirmDialog, toast,
+  StatusDot, UsageBar, Panel, SectionHeader, InfoRow, Button,
   Table, THead, TBody, TR, TH, TD,
 } from '@/kit'
 import { SmartChip } from '@/components/app/status'
 import { machineById, volumesFor, procsFor } from '@/lib/mock'
 import { useMachineLive } from '@/lib/live'
 import { fmtNumber, fmtUptime, fmtBytes, fmtDelta } from '@/lib/format'
-import { RotateCcw, Power, Terminal as TerminalIcon, MonitorPlay, ArrowLeft, ChevronRight } from 'lucide-react'
+import { Terminal as TerminalIcon, MonitorPlay, ArrowLeft, ChevronRight } from 'lucide-react'
 
 export default function MachineDetail() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const machine = machineById(id)
+  const [params, setParams] = useSearchParams()
+  const tab = adminTabs.some(([k]) => k === params.get('tab')) ? params.get('tab')! : 'overview'
   const { sample, history } = useMachineLive(id)
   const chartData = useMemo(() => history.map((h) => ({ label: new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(h.t), cpu: h.cpu, ram: h.ram })), [history])
 
@@ -40,16 +53,22 @@ export default function MachineDetail() {
       <PageHeader title={machine.name} description={`${machine.role} · ${machine.os} · ${machine.site}`}>
         <Button asChild variant="outline" size="sm"><Link to="/powershell"><TerminalIcon className="size-4" /> PowerShell</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/screen"><MonitorPlay className="size-4" /> Экран</Link></Button>
-        <ConfirmDialog trigger={<Button variant="outline" size="sm"><RotateCcw className="size-4" /> Перезагрузить</Button>}
-          title={`Перезагрузить ${machine.name}?`} danger={false} confirmLabel="Перезагрузить"
-          description="Машина станет недоступна на 1–2 минуты. Активные сессии будут закрыты. Это демо — реальная машина не затрагивается."
-          onConfirm={() => toast.success(`Команда перезагрузки отправлена на ${machine.name}`, 'Демо: реальная машина не затронута.')} />
-        <ConfirmDialog trigger={<Button variant="danger" size="sm"><Power className="size-4" /> Выключить</Button>}
-          title={`Выключить ${machine.name}?`} confirmLabel="Выключить" confirmText={machine.name}
-          description="Устройство будет полностью остановлено и потребует ручного включения. Введите имя машины для подтверждения. Это демо — реальная машина не затрагивается."
-          onConfirm={() => toast.warning(`${machine.name} выключается`, 'Демо: реальная машина не затронута.')} />
+        <RemoteAssist machine={machine} />
       </PageHeader>
 
+      <Tabs value={tab} onValueChange={(v) => setParams(v === 'overview' ? {} : { tab: v }, { replace: true })}>
+        <TabsList>
+          {adminTabs.map(([k, l]) => <TabsTab key={k} value={k}>{l}</TabsTab>)}
+        </TabsList>
+        <TabsPanel value="services"><ServicesTab machine={machine} /></TabsPanel>
+        <TabsPanel value="software"><SoftwareTab machine={machine} /></TabsPanel>
+        <TabsPanel value="sessions"><SessionsTab machine={machine} /></TabsPanel>
+        <TabsPanel value="tasks"><TasksTab machine={machine} /></TabsPanel>
+        <TabsPanel value="events"><EventsTab machine={machine} /></TabsPanel>
+        <TabsPanel value="network"><NetworkTab machine={machine} /></TabsPanel>
+        <TabsPanel value="power"><PowerTab machine={machine} /></TabsPanel>
+        <TabsPanel value="files"><FilesTab machine={machine} /></TabsPanel>
+        <TabsPanel value="overview" className="flex flex-col gap-5">
       <KpiStrip>
         <Stat label="Процессор" value={fmtNumber(sample?.cpu ?? 0, { digits: 0 })} unit="%" spark={<Sparkline data={history.map((h) => h.cpu)} />}
           delta={fmtDelta(sample?.cpu ?? 0, prev?.cpu ?? sample?.cpu ?? 0, { kind: 'pp', goodWhen: 'down', period: 'за 12 с' })} />
@@ -108,6 +127,8 @@ export default function MachineDetail() {
           </div>
         </Panel>
       </div>
+        </TabsPanel>
+      </Tabs>
     </>
   )
 }

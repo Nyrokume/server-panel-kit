@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Dialog, DialogContent, Kbd } from '@/kit'
 import { useTheme } from '@/lib/theme'
-import { nav } from '@/lib/nav'
+import { nav, adminTabs } from '@/lib/nav'
 import { machines } from '@/lib/mock'
 import { Search, Moon, Sun, Server, Monitor, CornerDownLeft } from 'lucide-react'
 
@@ -26,7 +26,12 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
       id: m.id, label: m.name, hint: m.role, group: 'Машины', icon: m.kind === 'server' ? Server : Monitor,
       run: go(`/machines/${m.id}`), search: `${m.name} ${m.role} ${m.ip}`,
     }))
-    return [...navItems, ...actions, ...machineItems]
+    const srv = machines.find((m) => m.kind === 'server' && m.status !== 'offline') ?? machines[0]
+    const adminItems: Item[] = adminTabs.filter(([k]) => k !== 'overview').map(([k, l]) => ({
+      id: `adm-${k}`, label: `${l} · ${srv.name}`, hint: 'Администрирование ПК', group: 'Администрирование', icon: Server,
+      run: go(`/machines/${srv.id}?tab=${k}`), search: `${l} администрирование ${srv.name}`,
+    }))
+    return [...navItems, ...actions, ...adminItems, ...machineItems]
   }, [navigate, onOpenChange, theme, toggle])
 
   const filtered = useMemo(() => {

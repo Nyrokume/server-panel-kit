@@ -51,15 +51,19 @@ export function DialogTitleText({ children, className }: { children: React.React
 }
 
 /* --------------------------------------------------------- ConfirmDialog */
-export function ConfirmDialog({ trigger, title, description, confirmLabel = 'Подтвердить', danger = true, onConfirm, confirmText }: {
-  trigger: React.ReactNode; title: string; description: React.ReactNode; confirmLabel?: string; danger?: boolean; onConfirm: () => void; confirmText?: string
+export function ConfirmDialog({ trigger, title, description, confirmLabel = 'Подтвердить', danger = true, onConfirm, confirmText, open: openProp, onOpenChange }: {
+  trigger?: React.ReactNode; title: string; description: React.ReactNode; confirmLabel?: string; danger?: boolean; onConfirm: () => void; confirmText?: string
+  /** controlled mode (e.g. confirm a Switch toggle); omit `trigger` then */
+  open?: boolean; onOpenChange?: (o: boolean) => void
 }) {
-  const [open, setOpen] = React.useState(false)
+  const [openState, setOpenState] = React.useState(false)
+  const open = openProp ?? openState
+  const setOpen = (o: boolean) => { setOpenState(o); onOpenChange?.(o) }
   const [typed, setTyped] = React.useState('')
   const locked = confirmText != null && typed.trim() !== confirmText
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setTyped('') }}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent title={title} description={typeof description === 'string' ? description : title} size="sm" className="p-5">
         <div className="flex flex-col gap-3">
           <div className="text-base font-semibold text-fg">{title}</div>
