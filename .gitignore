@@ -1,0 +1,9 @@
+node_modules
+dist
+*.local
+.DS_Store
+preview.log
+shots
+shot.cjs
+overlap.cjs
+probe*.cjs
