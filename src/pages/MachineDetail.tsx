@@ -13,14 +13,14 @@ import { Tabs, TabsList, TabsTab, TabsPanel } from '@/kit'
 import { adminTabs } from '@/lib/nav'
 import {
   PageHeader, KpiStrip, Stat, Sparkline, ChartFrame, TimeLine, VizTable,
-  StatusDot, UsageBar, Panel, SectionHeader, InfoRow, Button,
+  StatusDot, UsageBar, Panel, SectionHeader, InfoRow, Button, Callout,
   Table, THead, TBody, TR, TH, TD,
 } from '@/kit'
 import { SmartChip } from '@/components/app/status'
 import { machineById, volumesFor, procsFor } from '@/lib/mock'
 import { useMachineLive } from '@/lib/live'
 import { fmtNumber, fmtUptime, fmtBytes, fmtDelta } from '@/lib/format'
-import { Terminal as TerminalIcon, MonitorPlay, ArrowLeft, ChevronRight } from 'lucide-react'
+import { Terminal as TerminalIcon, MonitorPlay, ArrowLeft } from 'lucide-react'
 
 export default function MachineDetail() {
   const { id = '' } = useParams()
@@ -46,11 +46,7 @@ export default function MachineDetail() {
 
   return (
     <>
-      <nav className="flex items-center gap-1 text-sm text-muted">
-        <Link to="/machines" className="hover:text-fg">Машины</Link><ChevronRight className="size-3.5" /><span className="text-fg">{machine.name}</span>
-      </nav>
-
-      <PageHeader title={machine.name} description={`${machine.role} · ${machine.os} · ${machine.site}`}>
+      <PageHeader title={machine.name} description={`${machine.role}. ${machine.os}, ${machine.site}. Владелец — ${machine.owner}.`}>
         <Button asChild variant="outline" size="sm"><Link to="/powershell"><TerminalIcon className="size-4" /> PowerShell</Link></Button>
         <Button asChild variant="outline" size="sm"><Link to="/screen"><MonitorPlay className="size-4" /> Экран</Link></Button>
         <RemoteAssist machine={machine} />
@@ -69,6 +65,8 @@ export default function MachineDetail() {
         <TabsPanel value="power"><PowerTab machine={machine} /></TabsPanel>
         <TabsPanel value="files"><FilesTab machine={machine} /></TabsPanel>
         <TabsPanel value="overview" className="flex flex-col gap-5">
+      {machine.status === 'offline' && <Callout tone="note" title="Машина не в сети">Показаны последние полученные значения. Включить её можно на вкладке «Питание» через пробуждение по сети.</Callout>}
+      {machine.status === 'warning' && <Callout tone="warn" title="Агент сообщает о проблеме">Проверьте нагрузку и накопители ниже, а также журнал событий.</Callout>}
       <KpiStrip>
         <Stat label="Процессор" value={fmtNumber(sample?.cpu ?? 0, { digits: 0 })} unit="%" spark={<Sparkline data={history.map((h) => h.cpu)} />}
           delta={fmtDelta(sample?.cpu ?? 0, prev?.cpu ?? sample?.cpu ?? 0, { kind: 'pp', goodWhen: 'down', period: 'за 12 с' })} />
@@ -84,7 +82,7 @@ export default function MachineDetail() {
           <TimeLine data={chartData} unit=" %" max={100} series={[{ key: 'cpu', label: 'CPU, %', focus: true }, { key: 'ram', label: 'ОЗУ, %' }]} />
         </ChartFrame>
         <Panel flush className="p-4">
-          <div className="mb-2 text-sm font-semibold text-fg">Паспорт устройства</div>
+          <div className="mb-1 text-[15px] font-semibold text-fg">Паспорт устройства</div>
           <InfoRow k="Статус" v={<StatusDot status={machine.status} />} />
           <InfoRow k="Тип" v={machine.kind === 'server' ? 'Сервер' : 'Рабочая станция'} />
           <InfoRow k="Процессор" v={`${machine.cpuModel} · ${machine.cores} ядер`} />
@@ -97,7 +95,7 @@ export default function MachineDetail() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Panel flush>
-          <SectionHeader className="border-b border-line p-4" title="Накопители" />
+          <SectionHeader className="border-b border-line px-4 py-3" title="Накопители" />
           <div className="flex flex-col gap-3 p-4">
             {vols.map((v) => (
               <div key={v.id} className="flex flex-col gap-1.5">
@@ -109,7 +107,7 @@ export default function MachineDetail() {
           </div>
         </Panel>
         <Panel flush>
-          <SectionHeader className="border-b border-line p-4" title="Топ процессов по CPU"
+          <SectionHeader className="border-b border-line px-4 py-3" title="Топ процессов по CPU"
             actions={<Button variant="link" size="sm" onClick={() => navigate('/processes')}>Все процессы</Button>} />
           <div className="overflow-x-auto pk-scroll">
             <Table>

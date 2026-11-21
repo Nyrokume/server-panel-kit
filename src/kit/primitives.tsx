@@ -10,18 +10,18 @@ const btnBase =
   'inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[var(--radius-pk)] font-medium ' +
   'transition-[background-color,border-color,color,transform,opacity] duration-150 ease-out select-none ' +
   'focus-visible:outline-2 focus-visible:outline-[var(--pk-ring)] focus-visible:outline-offset-2 ' +
-  'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0'
+  'motion-safe:active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0'
 
 const btnVariants: Record<ButtonVariant, string> = {
-  solid: 'bg-accent text-accent-fg hover:opacity-90',
-  outline: 'border border-line-strong text-fg hover:bg-surface',
+  solid: 'bg-primary text-primary-fg shadow-sm hover:opacity-88',
+  outline: 'border border-line-strong bg-raised text-fg hover:border-fg/30 hover:bg-surface',
   ghost: 'text-fg hover:bg-surface',
   danger: 'bg-bad text-white hover:opacity-90',
-  link: 'text-accent underline-offset-4 hover:underline px-0 h-auto',
+  link: 'text-fg font-semibold underline decoration-line-strong decoration-1 underline-offset-4 hover:decoration-fg px-0 h-auto pointer-coarse:min-h-11',
 }
 const btnSizes: Record<ButtonSize, string> = {
-  sm: 'h-8 px-2.5 text-[13px]',
-  md: 'h-9 px-3.5 text-sm',
+  sm: 'h-8 px-2.5 text-[13px] pointer-coarse:min-h-11',
+  md: 'h-9 px-3.5 text-sm pointer-coarse:min-h-11',
   lg: 'h-11 px-5 text-[15px]',
 }
 
@@ -51,7 +51,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     return (
       <Comp
         ref={ref} aria-label={label} title={label}
-        className={cn(btnBase, btnVariants[variant], size === 'sm' ? 'size-8' : 'size-9', 'px-0', className)}
+        className={cn(btnBase, btnVariants[variant], size === 'sm' ? 'size-8' : 'size-9', 'px-0 pointer-coarse:size-11', className)}
         {...props}
       />
     )
@@ -65,9 +65,9 @@ export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttribute
     <input
       ref={ref}
       className={cn(
-        'h-9 w-full min-w-0 rounded-[var(--radius-pk)] border border-line bg-raised px-3 text-sm text-fg',
+        'h-9 w-full min-w-0 rounded-[var(--radius-pk)] border border-line-strong bg-raised px-3 text-sm text-fg pointer-coarse:h-11',
         'placeholder:text-faint transition-colors outline-none',
-        'focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-[var(--pk-ring)]',
+        'focus-visible:border-fg/40 focus-visible:ring-2 focus-visible:ring-[var(--pk-ring)]',
         'aria-[invalid=true]:border-bad disabled:opacity-50',
         className,
       )}
@@ -104,7 +104,7 @@ export function Kbd({ children, className }: { children: React.ReactNode; classN
 type ChipTone = 'neutral' | 'accent' | 'ok' | 'warn' | 'bad'
 const chipTones: Record<ChipTone, string> = {
   neutral: 'text-muted border-line',
-  accent: 'text-accent border-[color-mix(in_oklab,var(--pk-accent)_40%,transparent)]',
+  accent: 'text-fg border-line-strong bg-surface',
   ok: 'text-ok border-[color-mix(in_oklab,var(--pk-ok)_40%,transparent)]',
   warn: 'text-warn border-[color-mix(in_oklab,var(--pk-warn)_40%,transparent)]',
   bad: 'text-bad border-[color-mix(in_oklab,var(--pk-bad)_45%,transparent)]',
@@ -125,7 +125,7 @@ export function StatusDot({ status, withLabel = true, className }: { status: Dot
   return (
     <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap', className)}>
       <span className="relative flex size-2 shrink-0">
-        {status === 'online' && <span className="absolute inline-flex size-full animate-ping rounded-full opacity-60" style={{ background: m.color }} />}
+        {status === 'online' && <span className="absolute inline-flex size-full motion-safe:animate-ping rounded-full opacity-60" style={{ background: m.color }} />}
         <span className="relative inline-flex size-2 rounded-full" style={{ background: m.color }} />
       </span>
       {withLabel && <span className={cn('text-sm', m.text)}>{m.label}</span>}
@@ -140,7 +140,7 @@ export function Divider({ className, vertical }: { className?: string; vertical?
 
 /* ------------------------------------------------------------- Spinner */
 export function Spinner({ className }: { className?: string }) {
-  return <span className={cn('inline-block size-4 animate-spin rounded-full border-2 border-line border-t-accent', className)} aria-hidden />
+  return <span className={cn('inline-block size-4 animate-spin rounded-full border-2 border-line border-t-fg', className)} aria-hidden />
 }
 
 /* --------------------------------------------------------- UsageBar (meter) */

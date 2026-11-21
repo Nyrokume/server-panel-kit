@@ -42,11 +42,11 @@ export function FilesTab({ machine }: { machine: Machine }) {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <nav aria-label="Путь" className="flex min-w-0 flex-wrap items-center gap-1 font-mono text-sm">
-          <button className="rounded px-1.5 py-1 text-muted hover:bg-surface hover:text-fg" onClick={() => setPath([])}>C:</button>
+          <button className="rounded px-1.5 py-1 text-muted hover:bg-surface hover:text-fg pointer-coarse:min-h-11" onClick={() => setPath([])}>C:</button>
           {path.map((p, i) => (
             <span key={i} className="flex items-center gap-1">
               <ChevronRight className="size-3.5 text-faint" />
-              <button className="rounded px-1.5 py-1 text-muted hover:bg-surface hover:text-fg" onClick={() => setPath(path.slice(0, i + 1))}>{p}</button>
+              <button className="rounded px-1.5 py-1 text-muted hover:bg-surface hover:text-fg pointer-coarse:min-h-11" onClick={() => setPath(path.slice(0, i + 1))}>{p}</button>
             </span>
           ))}
         </nav>

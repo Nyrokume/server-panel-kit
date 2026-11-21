@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
-import { PageHeader, KpiStrip, Stat, Input, Segmented, Button, Chip, StatusDot, DataList, ConfirmDialog, toast, Panel, SectionHeader, InfoRow, type Column } from '@/kit'
+import { PageHeader, KpiStrip, Stat, Input, Segmented, Button, Chip, StatusDot, DataList, ConfirmDialog, toast, Section, CardGrid, Card, Callout, type Column } from '@/kit'
 import { users as allUsers, roleScopes, tenants, type User, type Role } from '@/lib/mock'
 import { ago, plural } from '@/lib/format'
-import { Search, ShieldCheck, ShieldOff, UserPlus } from 'lucide-react'
+import { Search, ShieldCheck, ShieldOff, UserPlus, Crown, KeyRound, Wrench, Eye } from 'lucide-react'
 
-const roleTone: Record<Role, 'accent' | 'ok' | 'neutral'> = { 'Владелец': 'accent', 'Администратор': 'accent', 'Оператор': 'ok', 'Наблюдатель': 'neutral' }
+const roleIcon: Record<Role, React.ComponentType<{ className?: string }>> = { 'Владелец': Crown, 'Администратор': KeyRound, 'Оператор': Wrench, 'Наблюдатель': Eye }
+
+const roleTone: Record<Role, 'accent' | 'neutral'> = { 'Владелец': 'accent', 'Администратор': 'accent', 'Оператор': 'neutral', 'Наблюдатель': 'neutral' }
 
 export default function Users() {
   const [q, setQ] = useState('')
@@ -36,8 +38,8 @@ export default function Users() {
 
   return (
     <>
-      <PageHeader title="Пользователи и роли" description="Доступ к пульту управления парком. Роли задают область действий.">
-        <ConfirmDialog trigger={<Button variant="outline"><UserPlus className="size-4" /> Пригласить</Button>}
+      <PageHeader title="Пользователи и роли" description="Кто имеет доступ к пульту и что может делать. Роли действуют во всех организациях, к которым у пользователя есть доступ.">
+        <ConfirmDialog trigger={<Button variant="solid"><UserPlus className="size-4" /> Пригласить</Button>}
           title="Пригласить пользователя" confirmLabel="Отправить приглашение" danger={false}
           description="В демо-режиме приглашения не отправляются. В боевой версии здесь будет форма с e-mail и выбором роли."
           onConfirm={() => toast.success('Приглашение отправлено', 'Демо: письмо не отправляется.')} />
@@ -50,25 +52,35 @@ export default function Users() {
         <Stat label="Без 2ФА" value={noMfa} note={noMfa ? 'рекомендуется включить' : 'все защищены'} />
       </KpiStrip>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative min-w-56 flex-1">
-              <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя, e-mail, роль…" className="pl-8" />
-            </div>
-            <Segmented value={roleF} onValueChange={setRoleF} ariaLabel="Роль"
-              options={[{ value: 'all', label: 'Все' }, { value: 'Администратор', label: 'Админы' }, { value: 'Оператор', label: 'Операторы' }, { value: 'Наблюдатель', label: 'Наблюдатели' }]} />
+      {noMfa > 0 && <Callout tone="warn" title={`Без второго фактора: ${noMfa}`}>Включите обязательную двухфакторную аутентификацию в настройках безопасности — для администраторов она особенно важна.</Callout>}
+
+      <Section id="people" title="Участники" description="Отключённый пользователь теряет доступ сразу, история его действий остаётся в аудите.">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative min-w-56 flex-1">
+            <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя, e-mail, роль…" className="pl-8" />
           </div>
-          <DataList columns={columns} rows={rows} rowKey={(u) => u.id}
-            rowActions={(u) => <Button variant="ghost" size="sm" onClick={() => toggle(u)}>{disabled.has(u.id) ? 'Включить' : 'Отключить'}</Button>}
-            footer={`${rows.length} ${plural(rows.length, ['пользователь', 'пользователя', 'пользователей'])}.`} />
+          <Segmented value={roleF} onValueChange={setRoleF} ariaLabel="Роль"
+            options={[{ value: 'all', label: 'Все' }, { value: 'Администратор', label: 'Админы' }, { value: 'Оператор', label: 'Операторы' }, { value: 'Наблюдатель', label: 'Наблюдатели' }]} />
         </div>
-        <Panel flush className="p-4 h-fit xl:sticky xl:top-20">
-          <SectionHeader as="h2" title="Область ролей" className="mb-2" />
-          {(Object.keys(roleScopes) as Role[]).map((r) => <InfoRow key={r} k={<Chip tone={roleTone[r]}>{r}</Chip>} v={<span className="text-xs">{roleScopes[r]}</span>} />)}
-        </Panel>
-      </div>
+        <DataList columns={columns} rows={rows} rowKey={(u) => u.id}
+          rowActions={(u) => disabled.has(u.id)
+            ? <Button variant="ghost" size="sm" onClick={() => toggle(u)}>Включить</Button>
+            : <ConfirmDialog trigger={<Button variant="ghost" size="sm">Отключить</Button>} title={`Отключить ${u.name}?`} confirmLabel="Отключить доступ"
+                description="Пользователь сразу потеряет доступ к пульту во всех организациях. Включить обратно можно в этом же списке." onConfirm={() => toggle(u)} />}
+          footer={`${rows.length} ${plural(rows.length, ['пользователь', 'пользователя', 'пользователей'])}.`} />
+      </Section>
+
+      <Section id="roles" title="Роли" description="Роль задаёт, что пользователь может делать с машинами организации.">
+        <CardGrid cols={2}>
+          {(Object.keys(roleScopes) as Role[]).map((r) => (
+            <Card key={r} as="button" icon={roleIcon[r]} title={r} description={roleScopes[r]} aria-pressed={roleF === r} onClick={() => setRoleF(roleF === r ? 'all' : r)}
+              className={roleF === r ? '!border-fg/40' : ''}>
+              <span className="text-sm text-fg tnum">{allUsers.filter((u) => u.role === r).length} {plural(allUsers.filter((u) => u.role === r).length, ['пользователь', 'пользователя', 'пользователей'])}</span>
+            </Card>
+          ))}
+        </CardGrid>
+      </Section>
     </>
   )
 }

@@ -2,15 +2,19 @@ import * as React from 'react'
 import { cn } from './cn'
 import { Button, IconButton, StatusDot } from './primitives'
 import { fmtTime } from '../lib/format'
-import { Camera, Maximize2 } from 'lucide-react'
+import { Camera, Maximize2, SquareTerminal, Eraser } from 'lucide-react'
+import { CopyButton } from './docs'
 
 /* ----------------------------------------------------------- Terminal block
    Self-contained mock terminal: history (↑/↓), Tab autocomplete, quick commands.
    `run` returns the fake output; '__CLEAR__' clears the screen. No real execution. */
 export type TermLine = { id: number; prompt?: string; text: string; tone?: 'ok' | 'err' | 'cmd' | 'out'; at: number }
 
-export function Terminal({ prompt, run, hints, quick, seed, className }: {
+export function Terminal({ prompt, run, hints, quick, seed, className, title, inject }: {
   prompt: string
+  title?: string
+  /** внешняя вставка команды (например, из блока кода): {cmd, n} — n меняется на каждую вставку */
+  inject?: { cmd: string; n: number }
   run: (cmd: string) => { out: string; tone?: 'ok' | 'err' }
   hints: string[]
   quick: string[]
@@ -26,6 +30,7 @@ export function Terminal({ prompt, run, hints, quick, seed, className }: {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }) }, [lines])
+  React.useEffect(() => { if (inject?.cmd) { setInput(inject.cmd); inputRef.current?.focus({ preventScroll: true }) } }, [inject?.n, inject?.cmd])
 
   const hint = React.useMemo(() => {
     if (!input.trim()) return ''
@@ -58,15 +63,19 @@ export function Terminal({ prompt, run, hints, quick, seed, className }: {
   }
 
   return (
-    <section className={cn('overflow-hidden rounded-[var(--radius-pk)] border border-line bg-raised', className)}>
-      <div className="flex items-center justify-between gap-2 border-b border-line bg-surface px-3 py-2">
-        <div className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-full bg-[#ff5f57]" /><span className="size-2.5 rounded-full bg-[#febc2e]" /><span className="size-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-2 font-mono text-xs text-muted">pwsh 7.4</span>
+    <section className={cn('overflow-hidden rounded-[var(--radius-pk-lg)] border border-line bg-raised', className)}>
+      <div className="flex min-h-11 items-center justify-between gap-2 border-b border-line pl-3.5 pr-1.5">
+        <div className="flex min-w-0 items-center gap-2 text-[13px]">
+          <SquareTerminal className="size-4 shrink-0 text-muted" />
+          <span className="truncate font-medium text-fg">{title ?? 'PowerShell 7.4'}</span>
+          <span className="hidden items-center gap-1.5 text-muted sm:inline-flex"><StatusDot status="online" withLabel={false} />сессия открыта</span>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-xs text-muted"><StatusDot status="online" withLabel={false} /> сессия активна</span>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <CopyButton text={lines.map((l) => (l.tone === 'cmd' ? `${l.prompt} ${l.text}` : l.text)).join('\n')} label="Скопировать вывод" />
+          <IconButton size="sm" label="Очистить экран" onClick={() => setLines([])}><Eraser className="size-4" /></IconButton>
+        </div>
       </div>
-      <div ref={scrollRef} className="h-[48vh] min-h-72 overflow-y-auto bg-[#0b0e14] px-3 py-3 font-mono text-[12.5px] leading-relaxed text-[#c3cbda] pk-scroll sm:px-4 sm:text-[13px]" onClick={() => inputRef.current?.focus()}>
+      <div ref={scrollRef} className="h-[46vh] min-h-72 overflow-y-auto bg-[#0d0d10] px-3 py-3 font-mono text-[12.5px] leading-relaxed text-[#c3cbda] pk-scroll sm:px-4 sm:text-[13px]" onClick={() => inputRef.current?.focus()}>
         {lines.map((l) => (
           <div key={l.id} className="whitespace-pre-wrap break-words">
             {l.tone === 'cmd'
@@ -80,14 +89,14 @@ export function Terminal({ prompt, run, hints, quick, seed, className }: {
             <span className="whitespace-pre break-all text-[#e5e9f0]">{input}</span>
             <span className="text-[#3b4261]">{hint}</span>
             <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[#7aa2f7] align-middle" />
-            <input ref={inputRef} autoFocus value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey}
+            <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey}
               spellCheck={false} autoComplete="off" autoCapitalize="off" aria-label="Команда PowerShell"
               className="absolute inset-0 w-full bg-transparent text-transparent caret-transparent outline-none" />
           </span>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-1.5 border-t border-line bg-surface px-3 py-2">
-        <span className="mr-1 text-xs text-muted">команды:</span>
+      <div className="flex flex-wrap items-center gap-1.5 border-t border-line px-3 py-2">
+        <span className="mr-1 text-xs text-muted">Быстрые команды</span>
         {quick.map((c) => <Button key={c} variant="outline" size="sm" className="h-7 font-mono text-xs" onClick={() => submit(c)}>{c}</Button>)}
       </div>
     </section>
@@ -99,14 +108,13 @@ export function ScreenTile({ name, meta, status, src, onOpen, onSnapshot }: {
   name: string; meta: string; status: 'online' | 'warning' | 'offline'; src: string; onOpen: () => void; onSnapshot: () => void
 }) {
   return (
-    <div className="group overflow-hidden rounded-[var(--radius-pk)] border border-line bg-raised transition-colors hover:border-line-strong">
+    <div className="group pk-tactile overflow-hidden rounded-[var(--radius-pk-lg)] border border-line bg-raised hover:border-line-strong hover:shadow-[var(--pk-shadow-card)]">
       <button className="relative block aspect-video w-full overflow-hidden bg-black text-left" onClick={onOpen} aria-label={`Открыть экран ${name}`}>
         <img src={src} alt={`Экран машины ${name}`} className="size-full object-cover" draggable={false} />
         <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded bg-black/55 px-1.5 py-0.5 text-[11px] text-white backdrop-blur">
           <StatusDot status={status} withLabel={false} />{fmtTime(Date.now())}
         </span>
-        <span className="absolute right-2 top-2 rounded bg-black/55 p-1 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100"><Maximize2 className="size-4" /></span>
-        <span className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[11px] font-medium text-white"><span className="size-1.5 animate-pulse rounded-full bg-red-500" /> LIVE</span>
+        <span className="absolute right-2 top-2 rounded bg-black/55 p-1 text-white opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 pointer-coarse:hidden"><Maximize2 className="size-4" /></span>
       </button>
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div className="min-w-0">
