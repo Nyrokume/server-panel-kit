@@ -27,10 +27,10 @@ export function ChartFrame({ title, subtitle, source, children, table, className
 }) {
   const [asTable, setAsTable] = React.useState(false)
   return (
-    <section className={cn('flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-pk-lg)] border border-line bg-raised', className)}>
+    <section className={cn('flex flex-col rounded-[var(--radius-pk)] border border-line bg-raised', className)}>
       <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3 sm:px-5">
         <div className="min-w-0">
-          <h3 className="text-[15px] font-semibold leading-snug text-fg text-balance">{title}</h3>
+          <h3 className="text-[15px] font-medium leading-snug text-fg text-balance">{title}</h3>
           {subtitle && <p className="mt-0.5 text-[13px] text-muted text-pretty">{subtitle}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -41,7 +41,7 @@ export function ChartFrame({ title, subtitle, source, children, table, className
         </div>
       </header>
       <div className="px-2 py-4 sm:px-4">{asTable ? <div className="overflow-x-auto px-2 pk-scroll">{table}</div> : children}</div>
-      {source && <div className="border-t border-line bg-surface/40 px-4 py-2.5 text-xs text-muted sm:px-5">{source}</div>}
+      {source && <div className="border-t border-line px-4 py-2.5 text-xs text-muted sm:px-5">{source}</div>}
     </section>
   )
 }

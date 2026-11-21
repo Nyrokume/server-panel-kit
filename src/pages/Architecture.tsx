@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { PageHeader, Segmented, Select, SelectItem, Button, IconButton, Panel, SectionHeader, Chip, DataList, Section, Callout, Steps, Step as StepBlock, type Column } from '@/kit'
+import { PageHeader, Segmented, Select, SelectItem, Button, IconButton, Panel, SectionHeader, Chip, DataList, type Column } from '@/kit'
 import { cn } from '@/kit/cn'
 import { nodes, edges, scenarios, edgeBetween, type NodeId, type ScenarioId, type Step, type ArchEdge } from '@/lib/architecture'
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, Shield } from 'lucide-react'
@@ -109,10 +109,9 @@ export default function Architecture() {
 
   return (
     <>
-      <PageHeader title="Схема взаимодействия" description="Как команда оператора доходит до машины и возвращается: шлюз с SSO и ролями, брокер заданий, агент, телеметрия и аудит." />
+      <PageHeader title="Схема взаимодействия" description="Как команда оператора доходит до ПК и возвращается: шлюз с SSO и ролями, брокер заданий, агент на машине, телеметрия и аудит. Наведите или нажмите на узел, запустите сценарий." />
 
-      <Section id="flow" title="Путь команды" description="Выберите сценарий. Можно запустить последовательность или переходить по шагам вручную.">
-      <div className="flex flex-col gap-2 rounded-[var(--radius-pk-lg)] border border-line bg-raised p-3 sm:p-4">
+      <div className="sticky top-14 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-bg/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 xl:static xl:mx-0 xl:border-0 xl:bg-transparent xl:p-0 xl:backdrop-blur-none">
         {controls}
         {stepLine}
       </div>
@@ -165,7 +164,7 @@ export default function Architecture() {
                 <rect width={W} height={H} rx={9} fill={inStep ? 'var(--pk-accent-weak)' : 'var(--pk-raised)'}
                   stroke={inStep || isSel ? 'var(--pk-accent)' : 'var(--pk-line-strong)'} strokeWidth={inStep || isSel ? 2 : 1}
                   className="transition-[stroke] group-focus-visible:stroke-[var(--pk-accent)]" />
-                <text x={12} y={27} fontSize="13.5" fontWeight={600} fill="var(--pk-fg)">{n.title}</text>
+                <text x={12} y={27} fontSize="14" fontWeight={600} fill="var(--pk-fg)">{n.title}</text>
                 <text x={12} y={47} fontSize="12" fill="var(--pk-muted)">{n.sub}</text>
               </g>
             )
@@ -222,24 +221,28 @@ export default function Architecture() {
           )
         })}
       </ol>
-      </Section>
 
-      <Section id="steps" title="Шаги и компоненты" description="Шаг выбирает поток на схеме. Узел на схеме открывает его описание.">
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <Panel flush>
-          <SectionHeader className="border-b border-line p-4" title={scenarios[scenario].label} description={`${steps.length} шагов от запроса до результата`} />
-          <div className="p-4"><Steps>
+          <SectionHeader className="border-b border-line p-4" title={`Шаги: ${scenarios[scenario].label}`} description="Нажмите на шаг, чтобы перейти к нему." />
+          <ol className="divide-y divide-line">
             {steps.map((s, i) => (
-              <StepBlock key={i} n={i + 1} title={<>{byId[s.from].title} → {byId[s.to].title}</>}
-                state={i === step ? 'current' : i < step ? 'done' : 'todo'} last={i === steps.length - 1}
-                onClick={() => { setPlaying(false); setStep(i) }}>
-                <span className="mb-1 block font-mono text-xs text-fg/75">{s.proto}</span>{s.text}
-              </StepBlock>
+              <li key={i}>
+                <button onClick={() => { setPlaying(false); setStep(i) }} aria-current={i === step ? 'step' : undefined}
+                  className={cn('flex min-h-11 w-full items-start gap-3 px-4 py-2.5 text-left text-sm transition-colors hover:bg-surface', i === step && 'bg-accent-weak')}>
+                  <span className={cn('mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] tnum',
+                    i === step ? 'bg-accent text-accent-fg' : i < step ? 'bg-surface text-fg' : 'border border-line text-muted')}>{i + 1}</span>
+                  <span className="min-w-0">
+                    <span className="block text-fg">{byId[s.from].title} → {byId[s.to].title} <span className="font-mono text-xs text-muted">· {s.proto}</span></span>
+                    <span className="block text-xs text-muted">{s.text}</span>
+                  </span>
+                </button>
+              </li>
             ))}
-          </Steps></div>
+          </ol>
         </Panel>
         <Panel flush className="hidden h-fit xl:block">
-          <SectionHeader className="border-b border-line p-4" title={node.title} description={node.sub}  />
+          <SectionHeader className="border-b border-line p-4" title={node.title} description={node.sub} actions={<Chip tone="neutral">узел</Chip>} />
           <div className="flex flex-col gap-3 p-4 text-sm">
             <p className="text-muted">{node.role}</p>
             <div>
@@ -265,12 +268,11 @@ export default function Architecture() {
         </Panel>
       </div>
 
-      </Section>
-      <Section id="sequence" title="Последовательность" description="Те же шаги таблицей — для чтения с экранным диктором и печати.">
+      <section className="flex flex-col gap-3">
+        <SectionHeader title="Последовательность (текстовая версия)" description="Те же шаги таблицей — для чтения с экранным диктором и печати." />
         <DataList columns={seqCols} rows={steps.map((s, i) => ({ ...s, n: i + 1 }))} rowKey={(s) => String(s.n)}
           footer="Демо-архитектура: ни один компонент не подключён к реальным машинам." />
-      </Section>
-      <Callout tone="note" title="Демонстрационная архитектура">Ни один компонент не подключён к реальным машинам. Схема показывает проектную последовательность команд, не состояние работающей инфраструктуры.</Callout>
+      </section>
     </>
   )
 }

@@ -1,18 +1,17 @@
 import { useState } from 'react'
 import {
-  PageHeader, Panel, KpiStrip, Stat, Sparkline, InfoRow, NoticeBar, EmptyState,
+  PageHeader, Panel, SectionHeader, KpiStrip, Stat, Sparkline, InfoRow, NoticeBar, EmptyState,
   Button, IconButton, Input, Textarea, Field, Kbd, Chip, StatusDot, Divider, Spinner, UsageBar,
   Select, SelectItem, Switch, Tabs, TabsList, TabsTab, TabsPanel, Segmented,
   Dialog, DialogTrigger, DialogContent, DialogHeader, DialogBody, DialogTitleText, ConfirmDialog,
   Sheet, SheetTrigger, SheetContent, Tooltip, Menu, MenuItem, MenuSeparator,
   DataList, type Column, ChartFrame, TimeLine, Bars, VizTable, toast,
-  DocPage, Section, CardGrid, Card, Callout, CodeBlock, Steps, Step, Breadcrumbs, Toc,
 } from '@/kit'
-import { Inbox, Camera, Plus, MoreHorizontal, Server, Bell, TerminalSquare } from 'lucide-react'
+import { Inbox, Camera, Plus, MoreHorizontal } from 'lucide-react'
 
 const swatches: [string, string][] = [
   ['bg', '--pk-bg'], ['surface', '--pk-surface'], ['raised', '--pk-raised'], ['line', '--pk-line'],
-  ['fg', '--pk-fg'], ['muted', '--pk-muted'], ['primary', '--pk-primary'], ['accent', '--pk-accent'], ['c2', '--pk-c2'], ['c3', '--pk-c3'], ['ok', '--pk-ok'], ['warn', '--pk-warn'], ['bad', '--pk-bad'],
+  ['fg', '--pk-fg'], ['muted', '--pk-muted'], ['accent', '--pk-accent'], ['ok', '--pk-ok'], ['warn', '--pk-warn'], ['bad', '--pk-bad'],
 ]
 const demoLine = Array.from({ length: 24 }, (_, i) => ({ label: `${i}`, a: 40 + Math.round(30 * Math.sin(i / 3)), b: 25 + Math.round(18 * Math.cos(i / 4)) }))
 const demoBars = [{ label: 'A', v: 42 }, { label: 'B', v: 88 }, { label: 'C', v: 61 }, { label: 'D', v: 95 }]
@@ -29,22 +28,23 @@ const cols: Column<Row>[] = [
   { key: 'cpu', header: 'CPU', align: 'right', cell: (r) => <div className="w-28"><UsageBar value={r.cpu} /></div> },
 ]
 
-const slug = (t: string) => 'k-' + [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36)
-function Block({ title, children, description }: { title: string; children: React.ReactNode; description?: string }) {
+function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <Section id={slug(title)} title={title} description={description}>
+    <section className="flex flex-col gap-3">
+      <SectionHeader as="h2" title={title} />
       <Panel flush className="p-4"><div className="flex flex-wrap items-start gap-3">{children}</div></Panel>
-    </Section>
+    </section>
   )
 }
-const blockTitles = ['Токены цвета', 'Типографика', 'Кнопки', 'Формы', 'Индикаторы и чипы', 'Docs-блоки', 'Overlay: диалоги, лист, меню, тултип', 'Вкладки', 'Блок KPI', 'Графики', 'Таблица', 'Строки информации', 'Пустое состояние']
-const kitToc = blockTitles.map((t) => ({ id: slug(t), label: t }))
 
 export default function Kit() {
   const [seg, setSeg] = useState('day')
   const [tab, setTab] = useState('a')
   return (
-    <DocPage toc={kitToc} header={<PageHeader title="Panel kit" description="Живой гайд по дизайн-системе пульта: токены, примитивы и блоки docs-постановки. Собственный набор поверх headless-примитивов Radix." />}>
+    <>
+      <PageHeader title="Panel kit" description="Живой гайд по дизайн-системе проекта: токены, примитивы и блоки. Собственный набор поверх headless-примитивов, без дефолтной библиотеки.">
+        <Chip tone="accent">v2 · минимализм</Chip>
+      </PageHeader>
 
       <Block title="Токены цвета">
         {swatches.map(([name, v]) => (
@@ -56,11 +56,10 @@ export default function Kit() {
         ))}
       </Block>
 
-      <Block title="Типографика" description="Заголовки — Literata, интерфейс — Inter, код — JetBrains Mono. Числа табличные.">
+      <Block title="Типографика · табличные цифры">
         <div className="flex flex-col gap-1">
-          <div className="pk-display text-[34px] leading-tight text-fg">Заголовок страницы</div>
-          <div className="pk-display text-[22px] text-fg">Заголовок раздела</div>
-          <div className="text-[15px] font-semibold text-fg">Заголовок карточки</div>
+          <div className="text-2xl font-semibold text-fg">Заголовок H1</div>
+          <div className="text-base font-semibold text-fg">Заголовок H2</div>
           <div className="text-sm text-fg">Основной текст — Inter, 14px</div>
           <div className="text-sm text-muted">Вторичный текст — muted</div>
           <div className="tnum text-sm text-fg">1 234 567,89 · 00:12:48 · 42,0 %</div>
@@ -96,33 +95,6 @@ export default function Kit() {
         <div className="w-40"><UsageBar value={82} /></div>
       </Block>
 
-      <Section id={slug('Docs-блоки')} title="Docs-блоки" description="Крошки, callout, карточки, блок кода, шаги и «На странице» — основа раскладки всех экранов.">
-        <Panel className="flex flex-col gap-4">
-          <Breadcrumbs items={[{ label: 'Мониторинг', to: '#' }, { label: 'Машины', to: '#' }, { label: 'SRV-DB-01' }]} />
-          <div className="grid gap-3 lg:grid-cols-2">
-            <Callout tone="note" title="Заметка">Нейтральный контекст.</Callout>
-            <Callout tone="info" title="Сведения">Пояснение к данным.</Callout>
-            <Callout tone="tip" title="Подсказка">Всё в норме.</Callout>
-            <Callout tone="warn" title="Внимание">Порог почти достигнут.</Callout>
-            <Callout tone="danger" title="Авария" className="lg:col-span-2" action={<Button size="sm" variant="outline">Разобрать</Button>}>Только для реальных отказов.</Callout>
-          </div>
-          <CardGrid cols={3}>
-            <Card as="button" icon={Server} title="Машины" description="Карточка-ссылка: иконка, заголовок, описание, данные."><span className="text-sm text-fg tnum">18 устройств</span></Card>
-            <Card as="button" icon={Bell} title="Оповещения" description="Подъём на наведении, вдавливание на нажатии."><span className="text-sm text-fg tnum">5 открытых</span></Card>
-            <Card icon={TerminalSquare} title="Статичная" description="Без ссылки — без стрелки и подъёма." />
-          </CardGrid>
-          <CodeBlock tabs={[{ label: 'PowerShell', code: 'Get-Service | Where-Object Status -eq Running' }, { label: 'cmd', code: 'sc query state= all' }]} />
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_200px]">
-            <Steps>
-              <Step n={1} title="Готово" state="done">Пройденный шаг.</Step>
-              <Step n={2} title="Текущий" state="current">Активный шаг — primary.</Step>
-              <Step n={3} title="Дальше" last>Ожидает.</Step>
-            </Steps>
-            <Toc items={[{ id: slug('Docs-блоки'), label: 'Docs-блоки' }, { id: slug('Вкладки'), label: 'Вкладки' }, { id: slug('Графики'), label: 'Графики', depth: 1 }]} />
-          </div>
-        </Panel>
-      </Section>
-
       <Block title="Overlay: диалоги, лист, меню, тултип">
         <Dialog><DialogTrigger asChild><Button variant="outline">Диалог</Button></DialogTrigger>
           <DialogContent title="Пример диалога" description="Демонстрация">
@@ -157,16 +129,18 @@ export default function Kit() {
         </div>
       </Block>
 
-      <Section id={slug('Блок KPI')} title="Блок KPI">
+      <section className="flex flex-col gap-3">
+        <SectionHeader as="h2" title="Блок KPI" />
         <KpiStrip>
           <Stat label="Машин онлайн" value={48} note="из 52" spark={<Sparkline data={[30, 35, 33, 40, 44, 48]} />} />
           <Stat label="Загрузка CPU" value="37" unit="%" delta={{ text: '4 п.п.', dir: 'down', tone: 'good', sr: 'снизилось' }} />
           <Stat label="Открытых аварий" value={3} note="нужна реакция" />
           <Stat label="Аптайм" value="99,95" unit="%" />
         </KpiStrip>
-      </Section>
+      </section>
 
-      <Section id={slug('Графики')} title="Графики" description="Цвета рядов — из кита (accent, c2, c3), в обеих темах; рядом всегда есть текстовая таблица.">
+      <section className="flex flex-col gap-3">
+        <SectionHeader as="h2" title="Блоки графиков (chart ↔ таблица)" />
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <ChartFrame title="Линейный график" subtitle="Два ряда, метки на концах" source="Демо-данные"
             table={<VizTable head={['t', 'A', 'B']} rows={demoLine.slice(-8).map((d) => [d.label, d.a, d.b])} />}>
@@ -177,28 +151,31 @@ export default function Kit() {
             <Bars data={demoBars} dataKey="v" label="Значение" threshold={90} />
           </ChartFrame>
         </div>
-      </Section>
+      </section>
 
-      <Section id={slug('Таблица')} title="Таблица" description="DataList: таблица в рамке на широких экранах, карточки на телефоне.">
+      <section className="flex flex-col gap-3">
+        <SectionHeader as="h2" title="Блок таблицы (DataList → карточки на мобильном)" />
         <DataList columns={cols} rows={rows} rowKey={(r) => r.id} footer="На узких экранах строки превращаются в карточки." />
-      </Section>
+      </section>
 
-      <Block title="Строки информации">
+      <Block title="Строки информации и уведомления">
         <div className="w-full max-w-md">
           <InfoRow k="Статус" v={<StatusDot status="online" />} />
           <InfoRow k="Адрес" v={<span className="font-mono text-xs">10.0.4.21</span>} />
           <InfoRow k="Аптайм" v="18 сут 4 ч" />
         </div>
         <div className="w-full max-w-md flex flex-col gap-2">
-          <NoticeBar title="NoticeBar">Совместимость: рендерит Callout.</NoticeBar>
+          <NoticeBar title="Нейтральное уведомление">Плоская панель-замена карточке-алерту.</NoticeBar>
+          <NoticeBar tone="warn" title="Предупреждение">Демонстрационный режим.</NoticeBar>
         </div>
       </Block>
 
-      <Section id={slug('Пустое состояние')} title="Пустое состояние">
+      <section className="flex flex-col gap-3">
+        <SectionHeader as="h2" title="Пустое состояние" />
         <Panel flush><EmptyState icon={Inbox} title="Здесь пока пусто" description="Данные появятся, когда появятся события." action={<Button variant="outline"><Plus className="size-4" /> Добавить</Button>} /></Panel>
-      </Section>
+      </section>
       <Divider />
       <p className="text-xs text-muted">Полная документация — в <span className="font-mono text-fg">src/kit/README.md</span>.</p>
-    </DocPage>
+    </>
   )
 }

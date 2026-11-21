@@ -1,7 +1,5 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/literata";
-@import "@fontsource-variable/jetbrains-mono";
 
 /* ============================================================================
    Panel-kit — собственная дизайн-система проекта (минимализм, моно + один акцент)
@@ -10,74 +8,56 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Docs-постановка: тёплая бумага, тёмный primary, один акцент для данных */
-  --pk-bg: #fbfbf9;
-  --pk-surface: #f2f2ef;
-  --pk-raised: #ffffff;
-  --pk-fg: #18181b;
-  --pk-muted: #57575c;
-  --pk-faint: #85858b;
-  --pk-line: #e4e4e0;
-  --pk-line-strong: #cfcfca;
-  /* primary — тёмный (кнопки, активные вкладки, логотип) */
-  --pk-primary: #18181b;
-  --pk-primary-fg: #fafafa;
-  /* акцент — только данные и индикаторы (графики, TOC, прогресс) */
-  --pk-accent: oklch(0.53 0.15 256);
-  --pk-accent-fg: #ffffff;
-  --pk-accent-weak: oklch(0.955 0.025 256);
+  /* поверхности: почти белое, тонкая иерархия */
+  --pk-bg: oklch(0.993 0 0);
+  --pk-surface: oklch(0.975 0 0);
+  --pk-raised: oklch(1 0 0);
+  --pk-fg: oklch(0.205 0 0);
+  --pk-muted: oklch(0.53 0 0);
+  --pk-faint: oklch(0.66 0 0);
+  --pk-line: oklch(0.912 0 0);
+  --pk-line-strong: oklch(0.84 0 0);
+  /* один сдержанный акцент */
+  --pk-accent: oklch(0.52 0.11 252);
+  --pk-accent-fg: oklch(0.99 0 0);
+  --pk-accent-weak: oklch(0.95 0.03 252);
   /* статусы — только для реальных состояний */
-  --pk-ok: oklch(0.55 0.13 152);
-  --pk-warn: oklch(0.64 0.14 68);
-  --pk-bad: oklch(0.55 0.2 27);
-  --pk-info-bg: oklch(0.97 0.018 256);
-  --pk-warn-bg: oklch(0.975 0.03 85);
-  --pk-bad-bg: oklch(0.97 0.022 27);
-  --pk-ok-bg: oklch(0.972 0.025 152);
-  /* графики: акцент + производные кита (не серые) */
+  --pk-ok: oklch(0.56 0.12 150);
+  --pk-warn: oklch(0.67 0.13 70);
+  --pk-bad: oklch(0.55 0.2 26);
+  /* графики: акцент + 3 нейтрали */
   --pk-c1: var(--pk-accent);
-  --pk-c2: oklch(0.72 0.1 220);
-  --pk-c3: oklch(0.62 0.12 300);
-  --pk-c4: oklch(0.45 0.08 256);
-  --pk-radius: 8px;
-  --pk-radius-lg: 12px;
+  --pk-c2: oklch(0.6 0 0);
+  --pk-c3: oklch(0.74 0 0);
+  --pk-c4: oklch(0.45 0.06 252);
+  --pk-radius: 7px;
   --pk-ring: color-mix(in oklab, var(--pk-accent) 55%, transparent);
-  --pk-shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 14px -6px rgb(0 0 0 / 0.08);
-  --pk-header-h: 101px;
 }
 
 .dark {
-  --pk-bg: #0c0c0e;
-  --pk-surface: #18181b;
-  --pk-raised: #111113;
-  --pk-fg: #f4f4f5;
-  --pk-muted: #a4a4ab;
-  --pk-faint: #75757c;
-  --pk-line: rgb(255 255 255 / 0.085);
-  --pk-line-strong: rgb(255 255 255 / 0.16);
-  --pk-primary: #f4f4f5;
-  --pk-primary-fg: #18181b;
-  --pk-accent: oklch(0.72 0.13 256);
-  --pk-accent-fg: #0c0c0e;
-  --pk-accent-weak: oklch(0.32 0.07 256 / 45%);
-  --pk-ok: oklch(0.75 0.14 152);
-  --pk-warn: oklch(0.8 0.13 78);
-  --pk-bad: oklch(0.7 0.18 25);
-  --pk-info-bg: oklch(0.26 0.05 256 / 55%);
-  --pk-warn-bg: oklch(0.28 0.05 78 / 45%);
-  --pk-bad-bg: oklch(0.28 0.06 25 / 45%);
-  --pk-ok-bg: oklch(0.28 0.05 152 / 45%);
+  --pk-bg: oklch(0.165 0 0);
+  --pk-surface: oklch(0.205 0 0);
+  --pk-raised: oklch(0.225 0 0);
+  --pk-fg: oklch(0.965 0 0);
+  --pk-muted: oklch(0.68 0 0);
+  --pk-faint: oklch(0.56 0 0);
+  --pk-line: oklch(1 0 0 / 11%);
+  --pk-line-strong: oklch(1 0 0 / 20%);
+  --pk-accent: oklch(0.72 0.1 252);
+  --pk-accent-fg: oklch(0.16 0.02 252);
+  --pk-accent-weak: oklch(0.3 0.06 252 / 45%);
+  --pk-ok: oklch(0.74 0.13 152);
+  --pk-warn: oklch(0.8 0.12 78);
+  --pk-bad: oklch(0.7 0.17 25);
   --pk-c1: var(--pk-accent);
-  --pk-c2: oklch(0.8 0.1 210);
-  --pk-c3: oklch(0.72 0.13 300);
-  --pk-c4: oklch(0.6 0.1 256);
-  --pk-shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 6px 18px -8px rgb(0 0 0 / 0.6);
+  --pk-c2: oklch(0.66 0 0);
+  --pk-c3: oklch(0.5 0 0);
+  --pk-c4: oklch(0.62 0.08 252);
 }
 
 @theme inline {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Literata Variable', Georgia, 'Times New Roman', serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
 
   --color-bg: var(--pk-bg);
   --color-surface: var(--pk-surface);
@@ -87,8 +67,6 @@
   --color-faint: var(--pk-faint);
   --color-line: var(--pk-line);
   --color-line-strong: var(--pk-line-strong);
-  --color-primary: var(--pk-primary);
-  --color-primary-fg: var(--pk-primary-fg);
   --color-accent: var(--pk-accent);
   --color-accent-fg: var(--pk-accent-fg);
   --color-accent-weak: var(--pk-accent-weak);
@@ -101,7 +79,6 @@
   --color-c4: var(--pk-c4);
 
   --radius-pk: var(--pk-radius);
-  --radius-pk-lg: var(--pk-radius-lg);
 }
 
 @layer base {
@@ -115,21 +92,12 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  html { scroll-padding-top: calc(var(--pk-header-h) + 16px); }
-  .pk-display { font-family: var(--font-display); font-optical-sizing: auto; letter-spacing: -0.01em; }
   /* тактильность: едва заметный отклик на нажатие у интерактивных */
   button:not(:disabled), [role="button"]:not(:disabled), a { cursor: pointer; }
   ::selection { background: color-mix(in oklab, var(--pk-accent) 28%, transparent); }
   :focus-visible { outline: 2px solid var(--pk-ring); outline-offset: 2px; border-radius: 4px; }
   /* числа метрик — табличные моноширинные */
   .tnum { font-variant-numeric: tabular-nums lining-nums; }
-}
-
-/* tactile: карточки и строки — лёгкий подъём при наведении, нажатие — вдавливание */
-@media (prefers-reduced-motion: no-preference) {
-  .pk-tactile { transition: transform .18s cubic-bezier(.2,.7,.2,1), border-color .15s, box-shadow .18s, background-color .15s; }
-  @media (hover: hover) { .pk-tactile:hover { transform: translateY(-1px); } }
-  .pk-tactile:active { transform: translateY(0) scale(.992); transition-duration: .06s; }
 }
 
 /* Recharts: подписи осей в обеих темах + видимый фокус (правило дата-виз) */

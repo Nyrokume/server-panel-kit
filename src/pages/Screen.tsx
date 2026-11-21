@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  PageHeader, Segmented, Input, Callout, ScreenTile, StatusDot, Button, IconButton,
+  PageHeader, Segmented, Input, NoticeBar, ScreenTile, StatusDot, Chip, Button, IconButton,
   Dialog, DialogContent, DialogHeader, DialogTitleText, EmptyState, toast,
 } from '@/kit'
 import { useAppState } from '@/lib/app-state'
 import { fleetFor } from '@/lib/live'
 import { fakeScreen } from '@/lib/fakescreen'
 import { fmtTime } from '@/lib/format'
-import { Search, RefreshCw, Camera, X, MonitorOff } from 'lucide-react'
+import { ShieldAlert, Search, RefreshCw, Camera, X, MonitorOff } from 'lucide-react'
 
 export default function Screen() {
   const { tenant } = useAppState()
@@ -31,12 +31,14 @@ export default function Screen() {
 
   return (
     <>
-      <PageHeader title="Просмотр экрана" description="Миниатюры экранов включённых машин. Откройте экран целиком, смените интервал обновления или сохраните снимок.">
+      <PageHeader title="Просмотр экрана" description="Миниатюры экранов включённых машин. Откройте на весь экран, выберите интервал обновления и делайте снимки.">
         <Segmented value={String(interval)} onValueChange={(v) => setIntervalMs(Number(v))} ariaLabel="Интервал обновления"
           options={[{ value: '1000', label: '1 с' }, { value: '3000', label: '3 с' }, { value: '10000', label: '10 с' }]} />
       </PageHeader>
 
-      <Callout tone="info" title="Изображения генерируются локально">Реальный захват экрана в демонстрации не выполняется. Снимки и полноэкранный режим работают на тех же картинках.</Callout>
+      <NoticeBar icon={ShieldAlert} title="Демонстрационный режим" tone="warn">
+        Изображения экранов генерируются локально. Реальный захват экрана не выполняется.
+      </NoticeBar>
 
       <div className="relative max-w-sm">
         <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
@@ -44,7 +46,7 @@ export default function Screen() {
       </div>
 
       {list.length === 0 ? (
-        <div className="rounded-[var(--radius-pk-lg)] border border-line bg-raised">
+        <div className="rounded-[var(--radius-pk)] border border-line bg-raised">
           <EmptyState icon={MonitorOff} title="Нет включённых машин" description="По заданному фильтру нет машин в сети." />
         </div>
       ) : (
@@ -62,7 +64,7 @@ export default function Screen() {
             <div className="flex min-w-0 items-center gap-2">
               <DialogTitleText>{fsMachine?.name}</DialogTitleText>
               {fsMachine && <StatusDot status={fsMachine.status} withLabel={false} />}
-              <span className="text-xs text-muted tnum">кадр от {fmtTime(Date.now())}</span>
+              <Chip tone="neutral"><span className="size-1.5 animate-pulse rounded-full bg-bad" /> LIVE · {fmtTime(Date.now())}</Chip>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <Button variant="outline" size="sm" onClick={() => setTick((t) => t + 1)}><RefreshCw className="size-4" /> <span className="hidden sm:inline">Обновить</span></Button>

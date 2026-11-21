@@ -69,7 +69,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5 pk-scroll">
           {groups.map(([group, gItems]) => (
             <div key={group} className="mb-1">
-              <div className="px-2 py-1 text-xs font-semibold text-muted">{group}</div>
+              <div className="px-2 py-1 text-[11px] uppercase tracking-wide text-faint">{group}</div>
               {gItems.map((it) => {
                 idx++
                 const isActive = idx === active
@@ -97,7 +97,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
 export function CommandButton({ onClick }: { onClick: () => void }) {
   return (
     <button type="button" onClick={onClick}
-      className="inline-flex h-9 w-full min-w-0 items-center gap-2 rounded-[var(--radius-pk-lg)] border border-line bg-raised px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg">
+      className="inline-flex h-9 w-full min-w-0 max-w-64 items-center gap-2 rounded-[var(--radius-pk)] border border-line bg-surface px-3 text-sm text-muted transition-colors hover:bg-raised hover:text-fg">
       <Search className="size-4 shrink-0" />
       <span className="truncate">Поиск…</span>
       <Kbd className="ml-auto hidden sm:inline-flex">⌘K</Kbd>

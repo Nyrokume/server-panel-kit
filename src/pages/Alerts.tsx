@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { PageHeader, KpiStrip, Stat, Segmented, Button, Chip, DataList, EmptyState, Callout, Section, toast, type Column } from '@/kit'
+import { PageHeader, KpiStrip, Stat, Segmented, Button, Chip, DataList, EmptyState, toast, type Column } from '@/kit'
 import { LevelChip } from '@/components/app/status'
 import { useAppState } from '@/lib/app-state'
 import { alerts as allAlerts, machineById, type Alert } from '@/lib/mock'
@@ -34,7 +34,7 @@ export default function Alerts() {
 
   return (
     <>
-      <PageHeader title="Оповещения" description="Аварии и предупреждения от агентов на машинах. Примите оповещение в работу, чтобы убрать его из списка открытых.">
+      <PageHeader title="Оповещения" description="Аварии и предупреждения по парку. Принимайте в работу по одному или все сразу.">
         <Button variant="outline" onClick={ackAll} disabled={open.length === 0}><Check className="size-4" /> Принять все</Button>
       </PageHeader>
 
@@ -45,9 +45,6 @@ export default function Alerts() {
         <Stat label="Принято" value={acked.size} note="в этой сессии" />
       </KpiStrip>
 
-      {crit > 0 && <Callout tone="danger" title={`Критичных: ${crit}`}>Начните с них: отказ диска и переполнение тома могут остановить службы. Карточка машины открывается по ссылке в строке.</Callout>}
-
-      <Section id="list" title="Список" description="Фильтр по уровню. Принятые скрыты, пока не включите их показ.">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Segmented value={level} onValueChange={setLevel} ariaLabel="Уровень"
           options={[{ value: 'all', label: 'Все' }, { value: 'crit', label: 'Критичные' }, { value: 'warn', label: 'Предупреждения' }, { value: 'info', label: 'Инфо' }]} />
@@ -55,7 +52,7 @@ export default function Alerts() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="rounded-[var(--radius-pk-lg)] border border-line bg-raised">
+        <div className="rounded-[var(--radius-pk)] border border-line bg-raised">
           <EmptyState icon={BellOff} title="Открытых оповещений нет" description="Все предупреждения приняты в работу. Новые появятся здесь." />
         </div>
       ) : (
@@ -65,7 +62,6 @@ export default function Alerts() {
             : <Button variant="ghost" size="sm" onClick={() => ackOne(a)}><Check className="size-4" /> Принять</Button>}
           footer={`${rows.length} ${plural(rows.length, ['запись', 'записи', 'записей'])} в списке.`} />
       )}
-      </Section>
     </>
   )
 }

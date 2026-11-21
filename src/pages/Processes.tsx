@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { PageHeader, Input, Segmented, Select, SelectItem, Button, Chip, DataList, ConfirmDialog, Callout, toast, type Column } from '@/kit'
+import { PageHeader, Input, Segmented, Select, SelectItem, Button, Chip, DataList, ConfirmDialog, toast, type Column } from '@/kit'
 import { useAppState } from '@/lib/app-state'
 import { fleetFor } from '@/lib/live'
 import { procsFor, type Proc } from '@/lib/mock'
@@ -42,13 +42,11 @@ export default function Processes() {
 
   return (
     <>
-      <PageHeader title="Процессы" description="Все процессы выбранной машины. Сортировка по любому столбцу, фильтр по состоянию; завершение — только после подтверждения.">
+      <PageHeader title="Процессы" description="Все процессы выбранной машины. Сортируйте и фильтруйте, завершайте процесс с подтверждением.">
         <Select value={machine?.id} onValueChange={(v) => { setId(v); setKilled(new Set()) }} ariaLabel="Машина" className="w-56">
           {fleet.map((m) => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
         </Select>
       </PageHeader>
-
-      <Callout tone="info" title="Завершение процесса необратимо">Несохранённые данные процесса пропадут. В демонстрации процесс просто исчезает из списка до смены машины.</Callout>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-56 flex-1">
@@ -57,7 +55,10 @@ export default function Processes() {
         </div>
         <Segmented value={statusF} onValueChange={setStatusF} ariaLabel="Статус"
           options={[{ value: 'all', label: 'Все' }, { value: 'running', label: 'Активные' }, { value: 'sleeping', label: 'Ожидают' }]} />
-        <p className="text-sm text-muted tnum">Всего: CPU <b className="font-semibold text-fg">{fmtNumber(totalCpu, { digits: 0 })} %</b>, ОЗУ <b className="font-semibold text-fg">{fmtNumber(Math.round(totalMem / 1024), { digits: 1 })} ГБ</b></p>
+        <div className="flex gap-2">
+          <Chip tone="neutral">CPU {fmtNumber(totalCpu, { digits: 0 })} %</Chip>
+          <Chip tone="neutral">ОЗУ {fmtNumber(Math.round(totalMem / 1024), { digits: 1 })} ГБ</Chip>
+        </div>
       </div>
 
       <DataList columns={columns} rows={rows} rowKey={(p) => String(p.pid)} sortKey={sort} sortDir={dir} onSort={onSort}

@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { PageHeader, Input, Segmented, StatusDot, UsageBar, Chip, DataList, Section, CardGrid, Card, type Column } from '@/kit'
+import { PageHeader, Input, Segmented, StatusDot, UsageBar, Chip, DataList, type Column } from '@/kit'
 import { useAppState } from '@/lib/app-state'
 import { useLive, fleetFor } from '@/lib/live'
 import { plural, ago } from '@/lib/format'
 import type { Machine, Status } from '@/lib/mock'
-import { Search, Server, Monitor, AlertCircle } from 'lucide-react'
+import { Search, Server, Monitor } from 'lucide-react'
 
 type SortKey = 'name' | 'cpu' | 'ram' | 'status'
 
@@ -56,22 +56,7 @@ export default function Machines() {
 
   return (
     <>
-      <PageHeader title="Машины" description={`${fleet.length} ${plural(fleet.length, ['устройство', 'устройства', 'устройств'])} под управлением. В карточке каждой машины — телеметрия, службы, обновления, сеансы, события, сеть, питание и файлы.`} />
-
-      <CardGrid cols={3}>
-        <Card as="button" aria-pressed={kind === 'server' && status === 'all'} className={kind === 'server' && status === 'all' ? '!border-fg/40' : ''} onClick={() => { setKind('server'); setStatus('all') }} icon={Server} title="Серверы" description="СУБД, приложения, файлы, домен и резервные копии.">
-          <span className="text-xl font-semibold tnum text-fg">{counts.server}<span className="ml-1.5 text-sm font-normal text-muted">всего</span></span>
-        </Card>
-        <Card as="button" aria-pressed={kind === 'workstation' && status === 'all'} className={kind === 'workstation' && status === 'all' ? '!border-fg/40' : ''} onClick={() => { setKind('workstation'); setStatus('all') }} icon={Monitor} title="Рабочие станции" description="Устройства сотрудников по отделам и площадкам.">
-          <span className="text-xl font-semibold tnum text-fg">{counts.workstation}<span className="ml-1.5 text-sm font-normal text-muted">всего</span></span>
-        </Card>
-        <Card as="button" aria-pressed={status === 'warning'} className={status === 'warning' ? '!border-fg/40' : ''} onClick={() => { setKind('all'); setStatus('warning') }} icon={AlertCircle} title="Требуют внимания" description="Машины с предупреждением от агента мониторинга.">
-          <span className="text-xl font-semibold tnum text-fg">{fleet.filter((m) => m.status === 'warning').length}<span className="ml-1.5 text-sm font-normal text-muted">с предупреждением</span></span>
-        </Card>
-      </CardGrid>
-
-      <Section id="fleet" title="Парк устройств" description="Поиск по имени, роли, адресу или владельцу. Откройте устройство для администрирования.">
-
+      <PageHeader title="Машины" description={`${fleet.length} ${plural(fleet.length, ['устройство', 'устройства', 'устройств'])} под управлением: серверы и рабочие станции.`} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-56 flex-1">
@@ -88,8 +73,7 @@ export default function Machines() {
 
       <DataList columns={columns} rows={rows} rowKey={(m) => m.id} onRowClick={(m) => navigate(`/machines/${m.id}`)}
         sortKey={sort} sortDir={dir} onSort={onSort}
-        footer={`Показано ${rows.length} из ${fleet.length}.`} />
-      </Section>
+        footer={`Показано ${rows.length} из ${fleet.length}. Нажмите на строку, чтобы открыть карточку машины.`} />
     </>
   )
 }
