@@ -111,14 +111,14 @@ export default function Architecture() {
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Схема взаимодействия" lead="Как пульты, агенты и организации связаны. Это схема демо-данных." />
+      <InspectorHead title="Схема пульта" />
     </InspectorShell>
   )
 
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Схема взаимодействия" description="Как команда оператора доходит до ПК и возвращается: шлюз с SSO и ролями, брокер заданий, агент на машине, телеметрия и аудит. Наведите или нажмите на узел, запустите сценарий." />
+      <PageHeader title="Схема пульта" description="Путь команды от браузера до машины и обратно, на демо-данных" />
 
       <div className="sticky top-14 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-bg/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 xl:static xl:mx-0 xl:border-0 xl:bg-transparent xl:p-0 xl:backdrop-blur-none">
         {controls}
@@ -127,7 +127,7 @@ export default function Architecture() {
 
       {/* desktop: SVG diagram */}
       <Panel flush className="hidden overflow-hidden xl:block">
-        <svg viewBox="0 0 1100 500" className="block h-auto w-full select-none" role="group" aria-label="Схема взаимодействия компонентов">
+        <svg viewBox="0 0 1100 500" className="block h-auto w-full select-none" role="group" aria-label="Схема пульта">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="context-stroke" />
@@ -182,7 +182,7 @@ export default function Architecture() {
       </Panel>
 
       {/* below xl: vertical stacked diagram */}
-      <ol className="flex flex-col xl:hidden" aria-label="Схема взаимодействия, сверху вниз">
+      <ol className="flex flex-col xl:hidden" aria-label="Схема пульта, сверху вниз">
         {stackOrder.map((id, i) => {
           const n = byId[id]
           const next = stackOrder[i + 1]
@@ -233,7 +233,7 @@ export default function Architecture() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <Panel flush>
-          <SectionHeader className="border-b border-line p-4" title={`Шаги: ${scenarios[scenario].label}`} description="Нажмите на шаг, чтобы перейти к нему." />
+          <SectionHeader className="border-b border-line p-4" title="Шаги" description="Нажмите на шаг, чтобы перейти к нему." />
           <ol className="divide-y divide-line">
             {steps.map((s, i) => (
               <li key={i}>
@@ -251,7 +251,7 @@ export default function Architecture() {
           </ol>
         </Panel>
         <Panel flush className="hidden h-fit xl:block">
-          <SectionHeader className="border-b border-line p-4" title={node.title} description={node.sub} actions={<Chip tone="neutral">узел</Chip>} />
+          <SectionHeader className="border-b border-line p-4" title={node.title} description={node.sub} />
           <div className="flex flex-col gap-3 p-4 text-sm">
             <p className="text-muted">{node.role}</p>
             <div>
@@ -278,7 +278,7 @@ export default function Architecture() {
       </div>
 
       <section className="flex flex-col gap-3">
-        <SectionHeader title="Последовательность (текстовая версия)" description="Те же шаги таблицей — для чтения с экранным диктором и печати." />
+        <SectionHeader title="Шаги таблицей" description="Те же шаги — для чтения с экранным диктором и печати." />
         <DataList columns={seqCols} rows={steps.map((s, i) => ({ ...s, n: i + 1 }))} rowKey={(s) => String(s.n)}
           footer="Демо-архитектура: ни один компонент не подключён к реальным машинам." />
       </section>

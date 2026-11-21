@@ -48,10 +48,10 @@ export function SelectedMachineCard({ machine, sample, tenantName }: { machine: 
       <Link to={`/machines/${machine.id}`} className="mt-2 block rounded-[10px] border border-line-strong bg-raised p-3 transition-colors hover:bg-surface">
         <div className="font-mono text-sm font-medium text-fg">{machine.name}</div>
         <div className="mt-0.5 text-xs text-muted">{machine.role}{tenant ? ` · ${tenant}` : ''}</div>
-        <div className="mt-2.5 flex gap-3">
-          <div className="flex-1"><div className="text-[11px] text-muted">CPU</div><div className="font-mono text-[15px] font-semibold tnum">{fmtNumber(sample?.cpu ?? 0, { digits: 0 })} %</div></div>
-          <div className="flex-1"><div className="text-[11px] text-muted">ОЗУ</div><div className="font-mono text-[15px] font-semibold tnum">{fmtNumber(sample?.ram ?? 0, { digits: 0 })} %</div></div>
-          <div className="flex-1"><div className="text-[11px] text-muted">Сеть</div><div className="font-mono text-[15px] font-semibold tnum">{fmtNumber(sample?.net ?? 0, { digits: 0 })}</div></div>
+        <div className="mt-2.5 grid grid-cols-3 gap-2">
+          <div className="min-w-0"><div className="text-[11px] text-muted">CPU</div><div className="font-mono text-[15px] font-semibold tnum whitespace-nowrap">{fmtNumber(sample?.cpu ?? 0, { digits: 0 })} %</div></div>
+          <div className="min-w-0"><div className="text-[11px] text-muted">ОЗУ</div><div className="font-mono text-[15px] font-semibold tnum whitespace-nowrap">{fmtNumber(sample?.ram ?? 0, { digits: 0 })} %</div></div>
+          <div className="min-w-0"><div className="text-[11px] text-muted">Сеть</div><div className="font-mono text-[15px] font-semibold leading-tight tnum">{fmtNumber(sample?.net ?? 0, { digits: 0 })}<span className="mt-0.5 block text-[11px] font-medium text-muted">Мбит/с</span></div></div>
         </div>
       </Link>
     </div>
@@ -63,7 +63,7 @@ export function AlertList({ alerts, machineName, limit = 5 }: { alerts: Alert[];
   return (
     <div className="px-4 py-3.5">
       <div className="text-[13px] font-medium text-fg">Открытые оповещения</div>
-      {items.length === 0 && <p className="mt-2 text-sm text-muted">Открытых оповещений нет.</p>}
+      {items.length === 0 && <p className="mt-2 text-sm text-muted">Открытых оповещений нет</p>}
       <ul>
         {items.map((a) => (
           <li key={a.id} className="grid grid-cols-[8px_minmax(0,1fr)_auto] items-start gap-2 border-t border-line py-2 first:border-0 first:pt-2">
@@ -74,7 +74,7 @@ export function AlertList({ alerts, machineName, limit = 5 }: { alerts: Alert[];
         ))}
       </ul>
       {alerts.length > limit && (
-        <Link to="/alerts" className="mt-1 inline-block text-sm text-muted hover:text-fg">Все {alerts.length} →</Link>
+        <Link to="/alerts" className="mt-1 inline-block text-sm text-muted hover:text-fg">Открыть все {alerts.length}</Link>
       )}
     </div>
   )
@@ -87,11 +87,18 @@ function sparkDelta(series?: number[]) {
   return fmtDelta(cur, prev, { kind: 'pp', digits: 1, goodWhen: 'down', period: 'за сессию' })
 }
 
+function sparkDeltaAbs(series?: number[], unit = 'Мбит/с') {
+  if (!series || series.length < 2) return null
+  const prev = series[0]
+  const cur = series[series.length - 1]
+  return fmtDelta(cur, prev, { kind: 'abs', digits: 0, unit, goodWhen: 'down', period: 'за сессию' })
+}
+
 export function OverviewInspector({
-  servers, stations, leaderUptime, online, total, warning, cpu, ram, net, openAlerts,
-  selected, sample, machineName, cpuSpark, ramSpark,
+  servers, stations, leaderName, leaderUptime, online, total, warning, cpu, ram, net, openAlerts,
+  selected, sample, machineName, cpuSpark, ramSpark, netSpark, compact,
 }: {
-  servers: number; stations: number; leaderUptime: number
+  servers: number; stations: number; leaderName?: string; leaderUptime: number
   online: number; total: number; warning: number
   cpu: number; ram: number; net: number
   openAlerts: Alert[]
@@ -100,28 +107,32 @@ export function OverviewInspector({
   machineName: (id: string) => string | undefined
   cpuSpark?: number[]
   ramSpark?: number[]
+  netSpark?: number[]
+  compact?: boolean
 }) {
+  const days = Math.floor(leaderUptime / 86400)
+  const up = days > 0 ? `${days} ${plural(days, ['день', 'дня', 'дней'])}` : fmtUptime(leaderUptime)
   const lead = (
     <>
-      {servers} {plural(servers, ['сервер', 'сервера', 'серверов'])} и {stations} {plural(stations, ['станция', 'станции', 'станций'])}.{' '}
-      Лидер в сети уже {fmtUptime(leaderUptime)}.{' '}
-      {selected && <>Выбран {selected.role.toLowerCase()} <span className="whitespace-nowrap">{selected.name}</span>.</>}
+      {servers} {plural(servers, ['сервер', 'сервера', 'серверов'])} и {stations} {plural(stations, ['станция', 'станции', 'станций'])}.
+      {leaderName && <> Дольше всех без перезагрузки: <span className="whitespace-nowrap">{leaderName}</span>, {up}</>}
     </>
   )
   const cpuD = sparkDelta(cpuSpark)
   const ramD = sparkDelta(ramSpark)
+  const netD = sparkDeltaAbs(netSpark)
 
   return (
     <InspectorShell className="h-full w-full">
       <InspectorHead title="Обзор парка" lead={lead} />
       <InspectorKpis items={[
-        { label: 'В сети', value: <>{online}<u className="ml-1 text-xs font-medium not-italic text-muted no-underline">/ {total}</u></>, note: warning ? `${warning} ${plural(warning, ['требует', 'требуют', 'требуют'])} внимания` : 'Все в порядке', tone: warning ? 'bad' : 'ok' },
-        { label: 'CPU', value: fmtNumber(cpu, { digits: 0 }), unit: '%', spark: cpuSpark, note: cpuD ? cpuD.text : 'среднее по парку', tone: cpuD?.tone === 'bad' ? 'bad' : 'ok' },
-        { label: 'ОЗУ', value: fmtNumber(ram, { digits: 0 }), unit: '%', spark: ramSpark, note: ramD ? ramD.text : 'среднее по парку', tone: ramD?.tone === 'bad' ? 'bad' : 'ok' },
-        { label: 'Сеть', value: fmtNumber(net, { digits: 0 }), unit: 'Мбит/с', note: openAlerts.length ? `${openAlerts.length} открытых` : 'Без открытых', tone: openAlerts.length ? 'bad' : 'ok' },
+        { label: 'В сети', value: <>{online}<u className="ml-1 text-xs font-medium not-italic text-muted no-underline">/ {total}</u></>, note: warning ? `${warning} ${plural(warning, ['требует', 'требуют', 'требуют'])} внимания` : 'Предупреждений нет', tone: warning ? 'bad' : 'ok' },
+        { label: 'CPU', value: fmtNumber(cpu, { digits: 0 }), unit: '%', spark: cpuSpark, note: cpuD ? cpuD.text : 'Среднее по парку', tone: cpuD?.tone === 'bad' ? 'bad' : 'ok' },
+        { label: 'ОЗУ', value: fmtNumber(ram, { digits: 0 }), unit: '%', spark: ramSpark, note: ramD ? ramD.text : 'Среднее по парку', tone: ramD?.tone === 'bad' ? 'bad' : 'ok' },
+        { label: 'Сеть', value: fmtNumber(net, { digits: 0, context: 'prose' }), unit: 'Мбит/с', spark: netSpark, note: netD ? netD.text : undefined, tone: netD?.tone === 'bad' ? 'bad' : undefined },
       ]} />
-      {selected && <SelectedMachineCard machine={selected} sample={sample} />}
-      <AlertList alerts={openAlerts} machineName={machineName} />
+      {!compact && selected && <SelectedMachineCard machine={selected} sample={sample} />}
+      {!compact && <AlertList alerts={openAlerts} machineName={machineName} />}
     </InspectorShell>
   )
 }

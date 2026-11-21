@@ -9,12 +9,13 @@ import { Camera, Maximize2 } from 'lucide-react'
    `run` returns the fake output; '__CLEAR__' clears the screen. No real execution. */
 export type TermLine = { id: number; prompt?: string; text: string; tone?: 'ok' | 'err' | 'cmd' | 'out'; at: number }
 
-export function Terminal({ prompt, run, hints, quick, seed, className }: {
+export function Terminal({ prompt, run, hints, quick, seed, placeholder, className }: {
   prompt: string
   run: (cmd: string) => { out: string; tone?: 'ok' | 'err' }
   hints: string[]
   quick: string[]
   seed?: TermLine[]
+  placeholder?: string
   className?: string
 }) {
   const [lines, setLines] = React.useState<TermLine[]>(seed ?? [])
@@ -77,6 +78,7 @@ export function Terminal({ prompt, run, hints, quick, seed, className }: {
         <div className="flex items-center">
           <span className="shrink-0 text-[#7aa2f7]">{prompt}&nbsp;</span>
           <span className="relative min-w-0 flex-1">
+            {!input && placeholder && <span className="text-[#3b4261]">{placeholder}</span>}
             <span className="whitespace-pre break-all text-[#e5e9f0]">{input}</span>
             <span className="text-[#3b4261]">{hint}</span>
             <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[#7aa2f7] align-middle" />

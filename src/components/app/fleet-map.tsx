@@ -303,10 +303,10 @@ export function FleetMap({
         })}
       </div>
       <div className="pointer-events-none absolute bottom-3 left-3 z-10 flex flex-wrap gap-x-3.5 gap-y-1 rounded-lg border border-line bg-bg/80 px-3 py-2 text-xs text-muted backdrop-blur">
-        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-ok" />в сети</span>
-        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-warn" />внимание</span>
-        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-off" />офлайн</span>
-        <span>Квадрат — сервер, овал — станция</span>
+        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-ok" />В сети</span>
+        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-warn" />Внимание</span>
+        <span className="inline-flex items-center gap-1.5"><i className="size-2 rounded-full border-2 border-off" />Офлайн</span>
+        <span>Прямоугольник: сервер, овал: станция</span>
       </div>
     </div>
   )

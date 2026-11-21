@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router'
 import { PageHeader, Input, Segmented, StatusDot, UsageBar, Chip, DataList, type Column } from '@/kit'
 import { useAppState } from '@/lib/app-state'
 import { useLive, fleetFor } from '@/lib/live'
-import { plural, ago } from '@/lib/format'
+import { ago } from '@/lib/format'
 import type { Machine, Status } from '@/lib/mock'
 import { Search, Server, Monitor } from 'lucide-react'
 import { Workbench } from '@/components/app/workbench'
-import { InspectorShell, InspectorHead } from '@/components/app/inspector'
+import { InspectorShell, InspectorHead, SelectedMachineCard } from '@/components/app/inspector'
 
 type SortKey = 'name' | 'cpu' | 'ram' | 'status'
 
 export default function Machines() {
-  const { tenant } = useAppState()
+  const { tenant, lastMachineId } = useAppState()
   const { samples } = useLive()
   const navigate = useNavigate()
   const fleet = fleetFor(tenant)
@@ -40,6 +40,12 @@ export default function Machines() {
 
   const onSort = (k: string) => { if (sort === k) setDir((d) => (d === 1 ? -1 : 1)); else { setSort(k as SortKey); setDir(1) } }
   const counts = { all: fleet.length, server: fleet.filter((m) => m.kind === 'server').length, workstation: fleet.filter((m) => m.kind === 'workstation').length }
+  const statusCounts = {
+    online: fleet.filter((m) => m.status === 'online').length,
+    warning: fleet.filter((m) => m.status === 'warning').length,
+    offline: fleet.filter((m) => m.status === 'offline').length,
+  }
+  const last = fleet.find((m) => m.id === lastMachineId) ?? fleet[0]
 
   const columns: Column<Machine>[] = [
     { key: 'name', header: 'Машина', sortable: true, primary: true, cell: (m) => (
@@ -51,21 +57,23 @@ export default function Machines() {
     { key: 'role', header: 'Роль', meta: true, cell: (m) => <span className="text-muted">{m.role}</span> },
     { key: 'os', header: 'ОС', hideBelow: 'lg', cell: (m) => <span className="text-muted">{m.os}</span> },
     { key: 'ip', header: 'Адрес', hideBelow: 'lg', cell: (m) => <span className="font-mono text-xs text-muted">{m.ip}</span> },
-    { key: 'cpu', header: 'CPU', sortable: true, cell: (m) => m.status === 'offline' ? <span className="text-muted">—</span> : <div className="w-28"><UsageBar value={samples[m.id]?.cpu ?? 0} /></div> },
-    { key: 'ram', header: 'ОЗУ', sortable: true, cell: (m) => m.status === 'offline' ? <span className="text-muted">—</span> : <div className="w-28"><UsageBar value={samples[m.id]?.ram ?? 0} /></div> },
-    { key: 'status', header: 'Статус', sortable: true, cell: (m) => m.status === 'offline' ? <Chip tone="neutral">офлайн · {ago(m.bootAt)}</Chip> : <StatusDot status={m.status} /> },
+    { key: 'cpu', header: 'CPU, %', sortable: true, cell: (m) => m.status === 'offline' ? <span className="text-muted">—</span> : <div className="w-28"><UsageBar value={samples[m.id]?.cpu ?? 0} /></div> },
+    { key: 'ram', header: 'ОЗУ, %', sortable: true, cell: (m) => m.status === 'offline' ? <span className="text-muted">—</span> : <div className="w-28"><UsageBar value={samples[m.id]?.ram ?? 0} /></div> },
+    { key: 'status', header: 'Статус', sortable: true, cell: (m) => m.status === 'offline' ? <Chip tone="neutral">Офлайн · {ago(m.bootAt)}</Chip> : <StatusDot status={m.status} /> },
   ]
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Машины" lead={`${counts.all} устройств: ${counts.server} серверов и ${counts.workstation} станций. Нажмите строку, чтобы открыть карточку.`} />
+      {last
+        ? <SelectedMachineCard machine={last} sample={samples[last.id]} />
+        : <InspectorHead title="Машины" />}
     </InspectorShell>
   )
 
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Машины" description={`${fleet.length} ${plural(fleet.length, ['устройство', 'устройства', 'устройств'])} под управлением: серверы и рабочие станции.`} />
+      <PageHeader title="Машины" />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative min-w-56 flex-1">
@@ -76,7 +84,7 @@ export default function Machines() {
           <Segmented value={kind} onValueChange={setKind} ariaLabel="Тип"
             options={[{ value: 'all', label: `Все ${counts.all}` }, { value: 'server', label: `Серверы ${counts.server}` }, { value: 'workstation', label: `Станции ${counts.workstation}` }]} />
           <Segmented value={status} onValueChange={setStatus} ariaLabel="Статус"
-            options={[{ value: 'all', label: 'Все' }, { value: 'online', label: 'В сети' }, { value: 'warning', label: 'Внимание' }, { value: 'offline', label: 'Офлайн' }]} />
+            options={[{ value: 'all', label: 'Все' }, { value: 'online', label: `В сети ${statusCounts.online}` }, { value: 'warning', label: `Внимание ${statusCounts.warning}` }, { value: 'offline', label: `Офлайн ${statusCounts.offline}` }]} />
         </div>
       </div>
 

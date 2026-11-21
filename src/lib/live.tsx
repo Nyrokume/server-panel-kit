@@ -9,6 +9,7 @@ type LiveState = {
   samples: Record<string, Sample>
   history: Record<string, HistPoint[]>
   paused: boolean
+  pausedAt: number | null
   setPaused: (v: boolean) => void
 }
 
@@ -17,7 +18,12 @@ const LiveCtx = createContext<LiveState | null>(null)
 export function LiveProvider({ children }: { children: React.ReactNode }) {
   const start = useRef(1000)
   const [tick, setTick] = useState(start.current)
-  const [paused, setPaused] = useState(false)
+  const [paused, setPausedState] = useState(false)
+  const [pausedAt, setPausedAt] = useState<number | null>(null)
+  const setPaused = (v: boolean) => {
+    setPausedState(v)
+    setPausedAt(v ? Date.now() : null)
+  }
   const [samples, setSamples] = useState<Record<string, Sample>>(() =>
     Object.fromEntries(machines.map((m) => [m.id, sampleFor(m, start.current)])),
   )
@@ -48,7 +54,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(id)
   }, [paused])
 
-  return <LiveCtx.Provider value={{ tick, samples, history, paused, setPaused }}>{children}</LiveCtx.Provider>
+  return <LiveCtx.Provider value={{ tick, samples, history, paused, pausedAt, setPaused }}>{children}</LiveCtx.Provider>
 }
 
 export function useLive() {
@@ -64,4 +70,8 @@ export function useMachineLive(id: string) {
 
 export function fleetFor(tenantId: string | 'all'): Machine[] {
   return tenantId === 'all' ? machines : machines.filter((m) => m.tenantId === tenantId)
+}
+
+export function preferredMachine(fleet: Machine[], lastId: string | null | undefined): Machine | undefined {
+  return fleet.find((m) => m.id === lastId) ?? fleet.find((m) => m.status !== 'offline') ?? fleet[0]
 }

@@ -38,7 +38,7 @@ export default function Users() {
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Пользователи и роли" lead="Кто имеет доступ к пульту. Приглашения и роли в этом демо не меняют внешние каталоги." />
+      <InspectorHead title="Пользователи" lead="В демо приглашения и роли не меняют внешние каталоги" />
       <div className="border-t border-line px-4 py-3.5">
         <div className="text-[13px] font-medium text-fg">Область ролей</div>
         <div className="mt-2">
@@ -51,7 +51,7 @@ export default function Users() {
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Пользователи и роли" description="Доступ к пульту управления парком. Роли задают область действий.">
+      <PageHeader title="Пользователи">
         <ConfirmDialog trigger={<Button variant="outline"><UserPlus className="size-4" /> Пригласить</Button>}
           title="Пригласить пользователя" confirmLabel="Отправить приглашение" danger={false}
           description="В демо-режиме приглашения не отправляются. В боевой версии здесь будет форма с e-mail и выбором роли."

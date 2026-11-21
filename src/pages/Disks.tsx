@@ -1,21 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import {
-  PageHeader, KpiStrip, Stat, Select, SelectItem, Panel, SectionHeader,
+  KpiStrip, Stat, Panel, SectionHeader,
   UsageBar, ChartFrame, IoArea, VizTable, Chip,
 } from '@/kit'
 import { SmartChip } from '@/components/app/status'
-import { useAppState } from '@/lib/app-state'
-import { fleetFor, useMachineLive } from '@/lib/live'
-import { volumesFor } from '@/lib/mock'
+import { useMachineLive } from '@/lib/live'
+import { volumesFor, type Machine } from '@/lib/mock'
 import { fmtNumber, fmtBytes, plural } from '@/lib/format'
-import { Workbench } from '@/components/app/workbench'
-import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
-export default function Disks() {
-  const { tenant } = useAppState()
-  const fleet = fleetFor(tenant)
-  const [id, setId] = useState(fleet[0]?.id)
-  const machine = fleet.find((m) => m.id === id) ?? fleet[0]
+export function DisksPanel({ machine }: { machine: Machine }) {
   const { history } = useMachineLive(machine.id)
   const vols = useMemo(() => volumesFor(machine), [machine])
 
@@ -29,29 +22,16 @@ export default function Disks() {
   const used = vols.reduce((s, v) => s + v.usedGb, 0)
   const failing = vols.filter((v) => v.smart !== 'ok').length
 
-  const inspector = (
-    <InspectorShell>
-      <InspectorHead title="Диски" lead="Тома, S.M.A.R.T. и ввод-вывод. Состояние видно по кольцу и формулировке, без ярлыков." />
-    </InspectorShell>
-  )
-
   return (
-    <Workbench inspector={inspector}>
-    <>
-      <PageHeader title="Диски" description="Тома, заполнение, здоровье SMART и ввод-вывод по выбранной машине.">
-        <Select value={machine.id} onValueChange={setId} ariaLabel="Машина" className="w-56">
-          {fleet.map((m) => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
-        </Select>
-      </PageHeader>
-
+    <div className="flex flex-col gap-5">
       <KpiStrip>
-        <Stat label="Томов" value={vols.length} note={plural(vols.length, ['накопитель', 'накопителя', 'накопителей'])} />
+        <Stat label="Томов" value={vols.length} note={plural(vols.length, ['диск', 'диска', 'дисков'])} />
         <Stat label="Занято" value={fmtBytes(used)} note={`из ${fmtBytes(total)}`} />
         <Stat label="Заполнение" value={fmtNumber((used / total) * 100, { digits: 0 })} unit="%" />
         <Stat label="SMART" value={failing === 0 ? 'OK' : failing} note={failing === 0 ? 'все тома здоровы' : 'требуют внимания'} />
       </KpiStrip>
 
-      <ChartFrame title="Дисковый ввод-вывод" subtitle="Чтение и запись, МБ/с, последние ~80 с" source="Источник: агент на машине (демо-данные)"
+      <ChartFrame title="Ввод-вывод, МБ/с" subtitle="Последние 80 с" source="Источник: агент на машине, демо-данные"
         table={<VizTable head={['Время', 'Чтение', 'Запись']} rows={io.slice(-12).map((d) => [d.label, d.read, d.write])} />}>
         <IoArea data={io} />
       </ChartFrame>
@@ -67,10 +47,10 @@ export default function Disks() {
               <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2.5">
                 {[
                   ['Модель', v.model],
-                  ['Температура', `${v.tempC} °C`],
-                  ['Чтение', `${fmtNumber(v.readMb)} МБ/с`],
-                  ['Запись', `${fmtNumber(v.writeMb)} МБ/с`],
-                  ['Наработка', `${fmtNumber(Math.round(v.powerOnH / 24))} сут`],
+                  ['Температура', `${v.tempC} °C`],
+                  ['Чтение', `${fmtNumber(v.readMb)} МБ/с`],
+                  ['Запись', `${fmtNumber(v.writeMb)} МБ/с`],
+                  ['Наработка', `${fmtNumber(Math.round(v.powerOnH / 24))} сут`],
                   ['Переназначено', v.reallocated === 0 ? 'нет' : `${v.reallocated} секторов`],
                 ].map(([k, val]) => (
                   <div key={k} className="min-w-0">
@@ -83,7 +63,6 @@ export default function Disks() {
           </Panel>
         ))}
       </div>
-    </>
-    </Workbench>
+    </div>
   )
 }

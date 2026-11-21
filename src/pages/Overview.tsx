@@ -8,7 +8,7 @@ import { alerts, machineById } from '@/lib/mock'
 import { plural } from '@/lib/format'
 
 export default function Overview() {
-  const { tenant } = useAppState()
+  const { tenant, setLastMachineId } = useAppState()
   const { samples, history } = useLive()
   const fleet = fleetFor(tenant)
 
@@ -23,6 +23,7 @@ export default function Overview() {
       cpu: avg((id) => samples[id]?.cpu ?? 0),
       ram: avg((id) => samples[id]?.ram ?? 0),
       net: fleet.reduce((s, m) => s + (samples[m.id]?.net ?? 0), 0),
+      leader: fleet.reduce((best, m) => (!best || m.bootAt < best.bootAt) ? m : best, fleet[0] ?? null),
       leaderUptime: fleet.length ? Math.max(...fleet.map((m) => (Date.now() - m.bootAt) / 1000)) : 0,
     }
   }, [fleet, samples])
@@ -50,6 +51,10 @@ export default function Overview() {
   useEffect(() => {
     if (!selectedId || !fleet.some((m) => m.id === selectedId)) setSelectedId(defaultId)
   }, [defaultId, fleet, selectedId])
+  const onSelect = (id: string | null) => {
+    setSelectedId(id)
+    if (id) setLastMachineId(id)
+  }
 
   const selected = selectedId ? fleet.find((m) => m.id === selectedId) ?? machineById(selectedId) ?? null : null
   const openAlerts = alerts.filter((a) => !a.acked && (tenant === 'all' || machineById(a.machineId)?.tenantId === tenant))
@@ -58,6 +63,7 @@ export default function Overview() {
     <OverviewInspector
       servers={stats.servers}
       stations={stats.total - stats.servers}
+      leaderName={stats.leader?.name}
       leaderUptime={stats.leaderUptime}
       online={stats.online}
       total={stats.total}
@@ -67,6 +73,7 @@ export default function Overview() {
       net={stats.net}
       cpuSpark={series.cpu}
       ramSpark={series.ram}
+      netSpark={series.net}
       openAlerts={openAlerts}
       selected={selected}
       sample={selected ? samples[selected.id] : undefined}
@@ -76,13 +83,32 @@ export default function Overview() {
 
   return (
     <div className="relative flex min-h-0 flex-1">
-      <div className="relative flex h-full min-h-0 min-w-0 flex-1 flex-col pb-[calc(44dvh+var(--pk-tabbar))] lg:pb-0">
-        <FleetMap fleet={fleet} selectedId={selectedId} onSelect={setSelectedId} className="min-h-0 flex-1" />
+      <div className="relative flex h-full min-h-0 min-w-0 flex-1 flex-col pb-[calc(var(--pk-sheet-h,20rem)+var(--pk-tabbar))] lg:pb-0">
+        <FleetMap fleet={fleet} selectedId={selectedId} onSelect={onSelect} className="min-h-0 flex-1" />
       </div>
       <div className="hidden w-[var(--pk-insp)] shrink-0 overflow-hidden border-l border-line lg:block">
         {inspector}
       </div>
-      <InspectorSheet label="Сводка парка">{inspector}</InspectorSheet>
+      <InspectorSheet>{(open) => <OverviewInspector
+        servers={stats.servers}
+        stations={stats.total - stats.servers}
+        leaderName={stats.leader?.name}
+        leaderUptime={stats.leaderUptime}
+        online={stats.online}
+        total={stats.total}
+        warning={stats.warning}
+        cpu={stats.cpu}
+        ram={stats.ram}
+        net={stats.net}
+        cpuSpark={series.cpu}
+        ramSpark={series.ram}
+        netSpark={series.net}
+        openAlerts={openAlerts}
+        selected={selected}
+        sample={selected ? samples[selected.id] : undefined}
+        machineName={(id) => machineById(id)?.name}
+        compact={!open}
+      />}</InspectorSheet>
       <span className="sr-only">{plural(stats.total, ['машина', 'машины', 'машин'])} на карте</span>
     </div>
   )

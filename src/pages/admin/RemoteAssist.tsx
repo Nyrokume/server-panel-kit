@@ -20,7 +20,7 @@ export function RemoteAssist({ machine }: { machine: Machine }) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setPhase('form') }}>
-      <DialogTrigger asChild><Button variant="outline" size="sm" disabled={machine.status === 'offline'}><LifeBuoy className="size-4" /> Помощь</Button></DialogTrigger>
+      <DialogTrigger asChild><Button variant="outline" size="sm" disabled={machine.status === 'offline'}><LifeBuoy className="size-4" /> Удалённая помощь</Button></DialogTrigger>
       <DialogContent title="Запрос удалённой помощи" size="sm">
         <DialogHeader><DialogTitleText>Удалённая помощь · {machine.name}</DialogTitleText></DialogHeader>
         <DialogBody className="flex flex-col gap-3">

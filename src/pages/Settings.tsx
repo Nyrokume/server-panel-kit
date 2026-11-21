@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   PageHeader, Panel, SectionHeader, Tabs, TabsList, TabsTab, TabsPanel,
-  Field, Input, Select, SelectItem, Switch, Button, Chip, toast, Divider,
+  Field, Input, Select, SelectItem, Switch, Button, toast, Divider,
 } from '@/kit'
 import { useTheme } from '@/lib/theme'
 import { useLive } from '@/lib/live'
@@ -27,14 +27,14 @@ export default function Settings() {
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Настройки" lead="Параметры организации и сессии. Сохранения остаются в этой вкладке браузера." />
+      <InspectorHead title="Настройки" />
     </InspectorShell>
   )
 
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Настройки" description="Параметры организации, безопасности и мониторинга. Демо: изменения не сохраняются на сервере." />
+      <PageHeader title="Настройки" description="В демо настройки хранятся только в этой вкладке браузера" />
 
       <Tabs defaultValue="org">
         <TabsList>
@@ -49,7 +49,7 @@ export default function Settings() {
             <SectionHeader className="border-b border-line p-4" title="Организация" description="Профиль арендатора и контактные данные." />
             <div className="flex flex-col gap-4 p-4">
               <Field label="Название" htmlFor="org-name"><Input id="org-name" defaultValue="Кедр Логистика" /></Field>
-              <Field label="Активная организация" htmlFor="org-tenant" hint="Панель поддерживает несколько организаций с переключением в шапке.">
+              <Field label="Активная организация" htmlFor="org-tenant">
                 <Select value={tenants[0].id} onValueChange={() => {}} ariaLabel="Организация">
                   {tenants.map((t) => <SelectItem key={t.id} value={t.id}>{t.name} · {t.plan}</SelectItem>)}
                 </Select>
@@ -69,11 +69,11 @@ export default function Settings() {
               <div className="py-3">
                 <div className="flex items-center justify-between text-sm"><span className="font-medium text-fg">Интервал опроса</span><span className="tnum text-muted">{interval} с</span></div>
                 <input type="range" min={1} max={10} step={1} value={interval} onChange={(e) => setIntervalV(Number(e.target.value))} className="mt-2 w-full accent-[var(--pk-accent)]" />
-                <div className="text-xs text-muted">Для демо фактический интервал зафиксирован на 2 секундах.</div>
+                <div className="text-xs text-muted">В демо всегда 2 с</div>
               </div>
               <Divider />
               <Field label="Порог CPU для предупреждения, %" htmlFor="cpu-th" className="py-3"><Input id="cpu-th" type="number" defaultValue={85} className="max-w-32" /></Field>
-              <div className="pt-1"><Button onClick={() => toast.success('Параметры мониторинга применены')}>Применить</Button></div>
+              <div className="pt-1"><Button onClick={() => toast.success('Параметры мониторинга сохранены')}>Сохранить</Button></div>
             </div>
           </Panel>
         </TabsPanel>
@@ -82,13 +82,12 @@ export default function Settings() {
           <Panel flush className="max-w-xl">
             <SectionHeader className="border-b border-line p-4" title="Безопасность" description="Доступ, двухфакторная аутентификация и аудит." />
             <div className="flex flex-col divide-y divide-line p-4 pt-0">
-              <ToggleRow title="Обязательная MFA" hint="Требовать второй фактор для администраторов." defaultChecked />
+              <ToggleRow title="Обязательная 2ФА" hint="Требовать второй фактор для администраторов." defaultChecked />
               <ToggleRow title="Подтверждение опасных действий" hint="Перезагрузка и выключение требуют ввода имени машины." defaultChecked />
               <ToggleRow title="Журнал аудита" hint="Записывать все команды и просмотры экрана." defaultChecked />
             </div>
             <div className="flex flex-wrap items-center gap-2 border-t border-line p-4">
               <Button onClick={() => toast.success('Политики безопасности сохранены')}>Сохранить</Button>
-              <Chip tone="neutral">Соответствие 152-ФЗ</Chip>
             </div>
           </Panel>
         </TabsPanel>

@@ -31,13 +31,22 @@ export function Workbench({
 }
 
 /** Нижняя шторка для обзора: короткий пик и разворот на таче. */
-export function InspectorSheet({ children, label = 'Сводка парка' }: { children: React.ReactNode; label?: string }) {
+export function InspectorSheet({ children, label = 'Сводка парка' }: {
+  children: React.ReactNode | ((open: boolean) => React.ReactNode)
+  label?: string
+}) {
   const [open, setOpen] = useState(false)
   return (
-    <div className={cn(
-      'absolute inset-x-0 bottom-[var(--pk-tabbar)] z-20 flex flex-col overflow-hidden border-t border-line bg-bg/95 backdrop-blur lg:hidden',
-      open ? 'max-h-[70dvh]' : 'max-h-[44dvh]',
-    )}>
+    <div
+      className={cn(
+        'absolute inset-x-0 bottom-[var(--pk-tabbar)] z-20 flex flex-col overflow-hidden border-t border-line bg-bg/95 backdrop-blur lg:hidden',
+        open ? 'max-h-[70dvh]' : 'h-auto max-h-[44dvh]',
+      )}
+      ref={(el) => {
+        const host = el?.parentElement
+        if (host && el) host.style.setProperty('--pk-sheet-h', `${el.offsetHeight}px`)
+      }}
+    >
       <button
         type="button"
         className="flex min-h-11 w-full flex-col items-center gap-1 px-3 pt-2 text-sm text-muted"
@@ -48,7 +57,9 @@ export function InspectorSheet({ children, label = 'Сводка парка' }: 
         <span className="h-1 w-10 rounded-full bg-line-strong" />
         <span className="sr-only">{label}</span>
       </button>
-      <div className="min-h-0 flex-1 overflow-y-auto pk-scroll">{children}</div>
+      <div className={cn('min-h-0', open && 'flex-1 overflow-y-auto pk-scroll')}>
+        {typeof children === 'function' ? children(open) : children}
+      </div>
     </div>
   )
 }

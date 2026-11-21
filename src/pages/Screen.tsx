@@ -33,25 +33,25 @@ export default function Screen() {
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Просмотр экрана" lead="Демо-кадры рабочих столов. Это не захват реального экрана." />
+      <InspectorHead title="Экраны" />
     </InspectorShell>
   )
 
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Просмотр экрана" description="Миниатюры экранов включённых машин. Откройте на весь экран, выберите интервал обновления и делайте снимки.">
+      <PageHeader title="Экраны">
         <Segmented value={String(interval)} onValueChange={(v) => setIntervalMs(Number(v))} ariaLabel="Интервал обновления"
           options={[{ value: '1000', label: '1 с' }, { value: '3000', label: '3 с' }, { value: '10000', label: '10 с' }]} />
       </PageHeader>
 
-      <NoticeBar icon={ShieldAlert} title="Демонстрационный режим" tone="warn">
-        Изображения экранов генерируются локально. Реальный захват экрана не выполняется.
+      <NoticeBar icon={ShieldAlert} tone="warn">
+        Кадры рисуются в браузере, захвата экрана нет
       </NoticeBar>
 
       <div className="relative max-w-sm">
         <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по имени или пользователю…" className="pl-8" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя машины или пользователь…" className="pl-8" />
       </div>
 
       {list.length === 0 ? (

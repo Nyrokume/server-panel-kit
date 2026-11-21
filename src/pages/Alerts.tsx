@@ -36,14 +36,14 @@ export default function Alerts() {
 
   const inspector = (
     <InspectorShell>
-      <InspectorHead title="Оповещения" lead="Открытые события парка. Принятие записи не отправляет сигнал на реальную машину." />
+      <InspectorHead title="Оповещения" lead="В демо принятие оповещения не доходит до машины" />
     </InspectorShell>
   )
 
   return (
     <Workbench inspector={inspector}>
     <>
-      <PageHeader title="Оповещения" description="Аварии и предупреждения по парку. Принимайте в работу по одному или все сразу.">
+      <PageHeader title="Оповещения">
         <Button variant="outline" onClick={ackAll} disabled={open.length === 0}><Check className="size-4" /> Принять все</Button>
       </PageHeader>
 
