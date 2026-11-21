@@ -6,6 +6,8 @@ import { useAppState } from '@/lib/app-state'
 import { alerts as allAlerts, machineById, type Alert } from '@/lib/mock'
 import { fmtDateTime, ago, plural } from '@/lib/format'
 import { Check, BellOff } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 export default function Alerts() {
   const { tenant } = useAppState()
@@ -32,7 +34,14 @@ export default function Alerts() {
     { key: 'at', header: 'Время', hideBelow: 'sm', cell: (a) => <span className="text-muted" title={fmtDateTime(a.at)}>{ago(a.at)}</span> },
   ]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Оповещения" lead="Открытые события парка. Принятие записи не отправляет сигнал на реальную машину." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Оповещения" description="Аварии и предупреждения по парку. Принимайте в работу по одному или все сразу.">
         <Button variant="outline" onClick={ackAll} disabled={open.length === 0}><Check className="size-4" /> Принять все</Button>
@@ -63,5 +72,6 @@ export default function Alerts() {
           footer={`${rows.length} ${plural(rows.length, ['запись', 'записи', 'записей'])} в списке.`} />
       )}
     </>
+    </Workbench>
   )
 }

@@ -13,11 +13,11 @@ const btnBase =
   'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-45 [&_svg]:size-4 [&_svg]:shrink-0'
 
 const btnVariants: Record<ButtonVariant, string> = {
-  solid: 'bg-accent text-accent-fg hover:opacity-90',
+  solid: 'bg-fg text-bg hover:opacity-90',
   outline: 'border border-line-strong text-fg hover:bg-surface',
   ghost: 'text-fg hover:bg-surface',
   danger: 'bg-bad text-white hover:opacity-90',
-  link: 'text-accent underline-offset-4 hover:underline px-0 h-auto',
+  link: 'text-fg underline-offset-4 hover:underline px-0 h-auto',
 }
 const btnSizes: Record<ButtonSize, string> = {
   sm: 'h-8 px-2.5 text-[13px]',
@@ -118,16 +118,13 @@ export type DotStatus = 'online' | 'warning' | 'offline'
 const dotMeta: Record<DotStatus, { label: string; color: string; text: string }> = {
   online: { label: 'В сети', color: 'var(--pk-ok)', text: 'text-ok' },
   warning: { label: 'Внимание', color: 'var(--pk-warn)', text: 'text-warn' },
-  offline: { label: 'Не в сети', color: 'var(--pk-faint)', text: 'text-faint' },
+  offline: { label: 'Офлайн', color: 'var(--pk-off)', text: 'text-faint' },
 }
 export function StatusDot({ status, withLabel = true, className }: { status: DotStatus; withLabel?: boolean; className?: string }) {
   const m = dotMeta[status]
   return (
     <span className={cn('inline-flex items-center gap-1.5 whitespace-nowrap', className)}>
-      <span className="relative flex size-2 shrink-0">
-        {status === 'online' && <span className="absolute inline-flex size-full animate-ping rounded-full opacity-60" style={{ background: m.color }} />}
-        <span className="relative inline-flex size-2 rounded-full" style={{ background: m.color }} />
-      </span>
+      <span className="size-2.5 shrink-0 rounded-full border-[2.5px]" style={{ borderColor: m.color }} aria-hidden />
       {withLabel && <span className={cn('text-sm', m.text)}>{m.label}</span>}
     </span>
   )
@@ -145,7 +142,7 @@ export function Spinner({ className }: { className?: string }) {
 
 /* --------------------------------------------------------- UsageBar (meter) */
 export function UsageBar({ value, danger = 90, warn = 75, className, showValue = true }: { value: number; danger?: number; warn?: number; className?: string; showValue?: boolean }) {
-  const color = value >= danger ? 'var(--pk-bad)' : value >= warn ? 'var(--pk-warn)' : 'var(--pk-accent)'
+  const color = value >= danger ? 'var(--pk-bad)' : value >= warn ? 'var(--pk-warn)' : 'var(--pk-c1)'
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line" role="meter" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>

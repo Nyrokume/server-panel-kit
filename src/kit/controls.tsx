@@ -46,7 +46,7 @@ export function Switch({ checked, defaultChecked, onCheckedChange, id, ariaLabel
 export function Tabs({ value, defaultValue, onValueChange, children, className }: {
   value?: string; defaultValue?: string; onValueChange?: (v: string) => void; children: React.ReactNode; className?: string
 }) {
-  return <TB.Root value={value} defaultValue={defaultValue} onValueChange={onValueChange} className={cn('flex flex-col gap-4', className)}>{children}</TB.Root>
+  return <TB.Root value={value} defaultValue={defaultValue} onValueChange={onValueChange} className={cn('flex min-w-0 flex-col gap-4', className)}>{children}</TB.Root>
 }
 export function TabsList({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = React.useRef<HTMLDivElement>(null)
@@ -57,7 +57,7 @@ export function TabsList({ children, className }: { children: React.ReactNode; c
     const l = a.offsetLeft - el.offsetLeft, r = l + a.offsetWidth
     if (l < el.scrollLeft || r > el.scrollLeft + el.clientWidth) el.scrollLeft = Math.max(0, l - 24)
   })
-  return <TB.List ref={ref} className={cn('flex max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden border-b border-line pk-scroll', className)}>{children}</TB.List>
+  return <TB.List ref={ref} className={cn('flex min-w-0 max-w-full items-center gap-1 overflow-x-auto overflow-y-hidden border-b border-line pk-scroll', className)}>{children}</TB.List>
 }
 export function TabsTab({ value, children }: { value: string; children: React.ReactNode }) {
   return (

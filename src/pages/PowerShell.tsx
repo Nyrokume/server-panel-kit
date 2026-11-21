@@ -4,11 +4,15 @@ import { useAppState } from '@/lib/app-state'
 import { fleetFor } from '@/lib/live'
 import { runCommand, commandHints } from '@/lib/pwsh'
 import { ShieldAlert } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead, SelectedMachineCard } from '@/components/app/inspector'
+import { useLive } from '@/lib/live'
 
 const PS = 'PS C:\\Windows\\system32>'
 
 export default function PowerShell() {
   const { tenant } = useAppState()
+  const { samples } = useLive()
   const fleet = fleetFor(tenant).filter((m) => m.status !== 'offline')
   const [id, setId] = useState(fleet[0]?.id)
   const machine = fleet.find((m) => m.id === id) ?? fleet[0]
@@ -24,7 +28,15 @@ export default function PowerShell() {
     return out
   }, [machine])
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="PowerShell" lead={machine ? `Сессия к ${machine.name}. Команды остаются в демо-терминале.` : 'Выберите машину в сети, чтобы открыть сессию.'} />
+      {machine && <SelectedMachineCard machine={machine} sample={samples[machine.id]} />}
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="PowerShell" description="Веб-терминал удалённой сессии. История (↑/↓), автодополнение (Tab), вывод командлетов.">
         <Select value={machine?.id} onValueChange={setId} ariaLabel="Машина" className="w-60">
@@ -45,5 +57,6 @@ export default function PowerShell() {
         run={(cmd) => { const r = machine ? runCommand(cmd, machine) : { out: '' }; return { out: r.out, tone: (r as { tone?: string }).tone === 'err' ? 'err' : (r as { tone?: string }).tone === 'ok' ? 'ok' : undefined } }}
       />
     </>
+    </Workbench>
   )
 }

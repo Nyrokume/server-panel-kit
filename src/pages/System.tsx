@@ -7,6 +7,8 @@ import { useAppState } from '@/lib/app-state'
 import { fleetFor, useMachineLive } from '@/lib/live'
 import { fmtDelta, fmtNumber, fmtUptime, fmtBytes } from '@/lib/format'
 import { volumesFor } from '@/lib/mock'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 export default function System() {
   const { tenant } = useAppState()
@@ -24,7 +26,14 @@ export default function System() {
   const diskTotal = vols.reduce((s, v) => s + v.sizeGb, 0)
   const prev = history[history.length - 7]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Состояние системы" lead="Сводные показания по выбранной организации. Цветные ряды на графиках — живые серии, не нейтральная заливка." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Состояние системы" description="Телеметрия выбранной машины в реальном времени: процессор, память, сеть, температура и аптайм.">
         <Select value={machine.id} onValueChange={setId} ariaLabel="Выбор машины" className="w-60">
@@ -81,5 +90,6 @@ export default function System() {
         </div>
       </Panel>
     </>
+    </Workbench>
   )
 }

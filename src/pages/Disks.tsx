@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
-  PageHeader, KpiStrip, Stat, Select, SelectItem, Panel, SectionHeader, InfoRow,
+  PageHeader, KpiStrip, Stat, Select, SelectItem, Panel, SectionHeader,
   UsageBar, ChartFrame, IoArea, VizTable, Chip,
 } from '@/kit'
 import { SmartChip } from '@/components/app/status'
@@ -8,6 +8,8 @@ import { useAppState } from '@/lib/app-state'
 import { fleetFor, useMachineLive } from '@/lib/live'
 import { volumesFor } from '@/lib/mock'
 import { fmtNumber, fmtBytes, plural } from '@/lib/format'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 export default function Disks() {
   const { tenant } = useAppState()
@@ -27,7 +29,14 @@ export default function Disks() {
   const used = vols.reduce((s, v) => s + v.usedGb, 0)
   const failing = vols.filter((v) => v.smart !== 'ok').length
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Диски" lead="Тома, S.M.A.R.T. и ввод-вывод. Состояние видно по кольцу и формулировке, без ярлыков." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Диски" description="Тома, заполнение, здоровье SMART и ввод-вывод по выбранной машине.">
         <Select value={machine.id} onValueChange={setId} ariaLabel="Машина" className="w-56">
@@ -55,18 +64,26 @@ export default function Disks() {
             <div className="p-4">
               <UsageBar value={(v.usedGb / v.sizeGb) * 100} />
               <div className="mt-1 text-xs text-muted tnum">{fmtBytes(v.usedGb)} из {fmtBytes(v.sizeGb)} · свободно {fmtBytes(v.sizeGb - v.usedGb)}</div>
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2">
-                <InfoRow k="Модель" v={<span className="truncate" title={v.model}>{v.model}</span>} />
-                <InfoRow k="Температура" v={`${v.tempC} °C`} />
-                <InfoRow k="Чтение" v={`${fmtNumber(v.readMb)} МБ/с`} />
-                <InfoRow k="Запись" v={`${fmtNumber(v.writeMb)} МБ/с`} />
-                <InfoRow k="Наработка" v={`${fmtNumber(Math.round(v.powerOnH / 24))} сут`} />
-                <InfoRow k="Переназначено" v={v.reallocated === 0 ? 'нет' : `${v.reallocated} секторов`} />
+              <div className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2.5">
+                {[
+                  ['Модель', v.model],
+                  ['Температура', `${v.tempC} °C`],
+                  ['Чтение', `${fmtNumber(v.readMb)} МБ/с`],
+                  ['Запись', `${fmtNumber(v.writeMb)} МБ/с`],
+                  ['Наработка', `${fmtNumber(Math.round(v.powerOnH / 24))} сут`],
+                  ['Переназначено', v.reallocated === 0 ? 'нет' : `${v.reallocated} секторов`],
+                ].map(([k, val]) => (
+                  <div key={k} className="min-w-0">
+                    <div className="text-xs text-muted">{k}</div>
+                    <div className="truncate text-sm font-medium text-fg tnum" title={String(val)}>{val}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </Panel>
         ))}
       </div>
     </>
+    </Workbench>
   )
 }

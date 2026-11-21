@@ -6,6 +6,8 @@ import { useLive, fleetFor } from '@/lib/live'
 import { plural, ago } from '@/lib/format'
 import type { Machine, Status } from '@/lib/mock'
 import { Search, Server, Monitor } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 type SortKey = 'name' | 'cpu' | 'ram' | 'status'
 
@@ -43,7 +45,7 @@ export default function Machines() {
     { key: 'name', header: 'Машина', sortable: true, primary: true, cell: (m) => (
       <span className="flex items-center gap-2.5">
         {m.kind === 'server' ? <Server className="size-4 shrink-0 text-muted" /> : <Monitor className="size-4 shrink-0 text-muted" />}
-        <span className="flex flex-col"><span className="font-medium text-fg">{m.name}</span><span className="text-xs text-muted">{m.owner}</span></span>
+        <span className="flex min-w-0 flex-col"><span className="whitespace-nowrap font-mono text-sm font-medium text-fg">{m.name}</span><span className="truncate text-xs text-muted">{m.owner}</span></span>
       </span>
     ) },
     { key: 'role', header: 'Роль', meta: true, cell: (m) => <span className="text-muted">{m.role}</span> },
@@ -54,7 +56,14 @@ export default function Machines() {
     { key: 'status', header: 'Статус', sortable: true, cell: (m) => m.status === 'offline' ? <Chip tone="neutral">офлайн · {ago(m.bootAt)}</Chip> : <StatusDot status={m.status} /> },
   ]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Машины" lead={`${counts.all} устройств: ${counts.server} серверов и ${counts.workstation} станций. Нажмите строку, чтобы открыть карточку.`} />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Машины" description={`${fleet.length} ${plural(fleet.length, ['устройство', 'устройства', 'устройств'])} под управлением: серверы и рабочие станции.`} />
 
@@ -75,5 +84,6 @@ export default function Machines() {
         sortKey={sort} sortDir={dir} onSort={onSort}
         footer={`Показано ${rows.length} из ${fleet.length}. Нажмите на строку, чтобы открыть карточку машины.`} />
     </>
+    </Workbench>
   )
 }

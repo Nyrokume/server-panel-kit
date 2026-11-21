@@ -68,7 +68,12 @@ export function fmtUptime(sec: number) {
   const d = Math.floor(sec / 86400)
   const h = Math.floor((sec % 86400) / 3600)
   const m = Math.floor((sec % 3600) / 60)
-  return d > 0 ? `${d}${NBSP}д ${h}${NBSP}ч` : `${h}${NBSP}ч ${m}${NBSP}мин`
+  if (d > 0) {
+    const days = `${d}${NBSP}${plural(d, ['день', 'дня', 'дней'])}`
+    return h === 0 ? days : `${days} ${h}${NBSP}ч`
+  }
+  if (h > 0) return m === 0 ? `${h}${NBSP}ч` : `${h}${NBSP}ч ${m}${NBSP}мин`
+  return `${Math.max(0, m)}${NBSP}мин`
 }
 
 export const fmtTime = (t: number) => new Intl.DateTimeFormat('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(t)

@@ -62,14 +62,14 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
         <div className="flex items-center gap-2 border-b border-line px-3.5">
           <Search className="size-4 shrink-0 text-muted" />
           <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
-            placeholder="Раздел, машина или действие…" aria-label="Поиск команд"
+            placeholder="Найти машину или перейти к разделу…" aria-label="Поиск команд"
             className="h-12 w-full bg-transparent text-sm text-fg placeholder:text-faint outline-none" />
           <Kbd>esc</Kbd>
         </div>
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto p-1.5 pk-scroll">
           {groups.map(([group, gItems]) => (
             <div key={group} className="mb-1">
-              <div className="px-2 py-1 text-[11px] uppercase tracking-wide text-faint">{group}</div>
+              <div className="px-2 py-1 text-[11px] text-faint">{group}</div>
               {gItems.map((it) => {
                 idx++
                 const isActive = idx === active

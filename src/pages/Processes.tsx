@@ -5,6 +5,8 @@ import { fleetFor } from '@/lib/live'
 import { procsFor, type Proc } from '@/lib/mock'
 import { fmtNumber, ago, plural } from '@/lib/format'
 import { Search, XSquare } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 type SortKey = 'cpu' | 'memMb' | 'name' | 'pid'
 
@@ -40,7 +42,14 @@ export default function Processes() {
     { key: 'status', header: 'Статус', hideBelow: 'lg', cell: (p) => p.status === 'running' ? <Chip tone="ok">активен</Chip> : <Chip tone="neutral">ожидает</Chip> },
   ]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Процессы" lead="Сводный список процессов на выбранных машинах. Завершение в этом демо никого не останавливает." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Процессы" description="Все процессы выбранной машины. Сортируйте и фильтруйте, завершайте процесс с подтверждением.">
         <Select value={machine?.id} onValueChange={(v) => { setId(v); setKilled(new Set()) }} ariaLabel="Машина" className="w-56">
@@ -70,5 +79,6 @@ export default function Processes() {
         )}
         footer={`${rows.length} ${plural(rows.length, ['процесс', 'процесса', 'процессов'])}${killed.size > 0 ? ` · завершено в сессии: ${killed.size}` : ''}`} />
     </>
+    </Workbench>
   )
 }

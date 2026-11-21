@@ -1,65 +1,79 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/onest";
+@import "@fontsource-variable/jetbrains-mono";
 
 /* ============================================================================
-   Panel-kit — собственная дизайн-система проекта (минимализм, моно + один акцент)
-   Токены живут здесь; shadcn и его переменные удалены.
+   Пульт — «Карта парка»: тёмный primary, фиолет только для выбора, фокуса и логотипа.
    ========================================================================== */
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* поверхности: почти белое, тонкая иерархия */
-  --pk-bg: oklch(0.993 0 0);
-  --pk-surface: oklch(0.975 0 0);
-  --pk-raised: oklch(1 0 0);
-  --pk-fg: oklch(0.205 0 0);
-  --pk-muted: oklch(0.53 0 0);
-  --pk-faint: oklch(0.66 0 0);
-  --pk-line: oklch(0.912 0 0);
-  --pk-line-strong: oklch(0.84 0 0);
-  /* один сдержанный акцент */
-  --pk-accent: oklch(0.52 0.11 252);
-  --pk-accent-fg: oklch(0.99 0 0);
-  --pk-accent-weak: oklch(0.95 0.03 252);
-  /* статусы — только для реальных состояний */
-  --pk-ok: oklch(0.56 0.12 150);
-  --pk-warn: oklch(0.67 0.13 70);
-  --pk-bad: oklch(0.55 0.2 26);
-  /* графики: акцент + 3 нейтрали */
-  --pk-c1: var(--pk-accent);
-  --pk-c2: oklch(0.6 0 0);
-  --pk-c3: oklch(0.74 0 0);
-  --pk-c4: oklch(0.45 0.06 252);
-  --pk-radius: 7px;
+  --pk-bg: #f3f2f8;
+  --pk-rail: #eceaf3;
+  --pk-surface: #e7e5f0;
+  --pk-raised: #ffffff;
+  --pk-fg: #1c1b28;
+  --pk-muted: #5e5b6d;
+  --pk-faint: #8a8698;
+  --pk-line: #dddce6;
+  --pk-line-strong: #c9c7d4;
+  --pk-accent: #6d5ef0;
+  --pk-accent-fg: #f4f2ff;
+  --pk-accent-weak: color-mix(in oklab, #6d5ef0 14%, transparent);
+  --pk-ok: #1a8f72;
+  --pk-warn: #a56b12;
+  --pk-bad: #c4473d;
+  --pk-off: #8a8698;
+  --pk-node: #ffffff;
+  --pk-node-sel: #f3f0ff;
+  --pk-link: #c5c2d8;
+  --pk-grid: rgb(109 94 240 / 14%);
+  /* графики: цветные серии, не серые и не фиолетовые */
+  --pk-c1: #1a8f72;
+  --pk-c2: #c47a1a;
+  --pk-c3: #2a7de1;
+  --pk-c4: #c4473d;
+  --pk-radius: 8px;
   --pk-ring: color-mix(in oklab, var(--pk-accent) 55%, transparent);
+  --pk-header: 48px;
+  --pk-rail-w: 56px;
+  --pk-insp: 340px;
+  --pk-tabbar: calc(52px + env(safe-area-inset-bottom, 0px));
 }
 
 .dark {
-  --pk-bg: oklch(0.165 0 0);
-  --pk-surface: oklch(0.205 0 0);
-  --pk-raised: oklch(0.225 0 0);
-  --pk-fg: oklch(0.965 0 0);
-  --pk-muted: oklch(0.68 0 0);
-  --pk-faint: oklch(0.56 0 0);
-  --pk-line: oklch(1 0 0 / 11%);
-  --pk-line-strong: oklch(1 0 0 / 20%);
-  --pk-accent: oklch(0.72 0.1 252);
-  --pk-accent-fg: oklch(0.16 0.02 252);
-  --pk-accent-weak: oklch(0.3 0.06 252 / 45%);
-  --pk-ok: oklch(0.74 0.13 152);
-  --pk-warn: oklch(0.8 0.12 78);
-  --pk-bad: oklch(0.7 0.17 25);
-  --pk-c1: var(--pk-accent);
-  --pk-c2: oklch(0.66 0 0);
-  --pk-c3: oklch(0.5 0 0);
-  --pk-c4: oklch(0.62 0.08 252);
+  --pk-bg: #09090d;
+  --pk-rail: #0c0c12;
+  --pk-surface: #181825;
+  --pk-raised: #12121a;
+  --pk-fg: #eceaf6;
+  --pk-muted: #9a97ab;
+  --pk-faint: #6d6a7c;
+  --pk-line: #23232f;
+  --pk-line-strong: #3a3560;
+  --pk-accent: #8b7cf5;
+  --pk-accent-fg: #0b0b12;
+  --pk-accent-weak: color-mix(in oklab, #8b7cf5 18%, transparent);
+  --pk-ok: #62c7a8;
+  --pk-warn: #e0b25c;
+  --pk-bad: #ef7a72;
+  --pk-off: #5a5866;
+  --pk-node: #161622;
+  --pk-node-sel: #1c1a33;
+  --pk-link: #3a3760;
+  --pk-grid: rgb(139 124 245 / 10%);
+  --pk-c1: #62c7a8;
+  --pk-c2: #e0b25c;
+  --pk-c3: #7aa8ff;
+  --pk-c4: #ef7a72;
 }
 
 @theme inline {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  --font-sans: 'Onest Variable', Onest, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 
   --color-bg: var(--pk-bg);
+  --color-rail: var(--pk-rail);
   --color-surface: var(--pk-surface);
   --color-raised: var(--pk-raised);
   --color-fg: var(--pk-fg);
@@ -73,6 +87,7 @@
   --color-ok: var(--pk-ok);
   --color-warn: var(--pk-warn);
   --color-bad: var(--pk-bad);
+  --color-off: var(--pk-off);
   --color-c1: var(--pk-c1);
   --color-c2: var(--pk-c2);
   --color-c3: var(--pk-c3);
@@ -88,30 +103,24 @@
     background: var(--pk-bg);
     color: var(--pk-fg);
     font-family: var(--font-sans);
-    font-feature-settings: 'cv05' 1, 'ss01' 1;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  /* тактильность: едва заметный отклик на нажатие у интерактивных */
   button:not(:disabled), [role="button"]:not(:disabled), a { cursor: pointer; }
   ::selection { background: color-mix(in oklab, var(--pk-accent) 28%, transparent); }
   :focus-visible { outline: 2px solid var(--pk-ring); outline-offset: 2px; border-radius: 4px; }
-  /* числа метрик — табличные моноширинные */
-  .tnum { font-variant-numeric: tabular-nums lining-nums; }
+  .tnum { font-variant-numeric: tabular-nums lining-nums; font-family: var(--font-mono); }
 }
 
-/* Recharts: подписи осей в обеих темах + видимый фокус (правило дата-виз) */
 .recharts-cartesian-axis-tick text,
 .recharts-cartesian-axis-tick-value,
 .recharts-cartesian-axis-tick-label { fill: var(--pk-muted); font-variant-numeric: tabular-nums; }
 .recharts-wrapper:focus-visible, .recharts-surface:focus-visible { outline: 2px solid var(--pk-ring); outline-offset: 2px; }
 
-/* утилита: hairline-разделители и скрытие нативного скроллбара терминала */
 .pk-scroll { scrollbar-width: thin; scrollbar-color: var(--pk-line-strong) transparent; }
 .pk-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
 .pk-scroll::-webkit-scrollbar-thumb { background: var(--pk-line-strong); border-radius: 8px; }
 
-/* subtle motion for overlays/popovers (replaces tw-animate-css) */
 @keyframes pk-fade { from { opacity: 0 } to { opacity: 1 } }
 @keyframes pk-pop { from { opacity: 0; transform: translateY(2px) scale(.985) } to { opacity: 1; transform: translateY(0) scale(1) } }
 @media (prefers-reduced-motion: no-preference) {
@@ -119,7 +128,6 @@
   .pk-pop[data-state="open"], .pk-pop[data-state="delayed-open"] { animation: pk-pop .15s cubic-bezier(.2,.7,.2,1) }
 }
 
-/* interaction diagram motion (disabled by prefers-reduced-motion in the component) */
 @keyframes pk-flow { to { stroke-dashoffset: -24; } }
 .pk-flow { animation: pk-flow 0.8s linear infinite; }
 @keyframes pk-drop { from { top: 0; opacity: 0; } 20% { opacity: 1; } to { top: calc(100% - 8px); opacity: 0.2; } }
@@ -127,3 +135,20 @@
 .pk-drop { animation: pk-drop 1.1s ease-in infinite; }
 .pk-rise { animation: pk-rise 1.1s ease-in infinite; }
 @media (prefers-reduced-motion: reduce) { .pk-flow, .pk-drop, .pk-rise { animation: none; } }
+
+/* карта: точечная сетка, панорамируется вместе с миром */
+.pk-map {
+  background-color: var(--pk-bg);
+  background-image:
+    radial-gradient(circle, var(--pk-grid) 1px, transparent 1.2px),
+    radial-gradient(1200px 500px at 40% 40%, color-mix(in oklab, var(--pk-accent) 7%, transparent), transparent 55%);
+  background-size: 22px 22px, auto;
+  touch-action: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pk-node-sel { filter: none !important; }
+}
+
+@media (max-width: 1023px) {
+  .touch-44, .touch-44:where(button, a, [role="button"]) { min-width: 44px; min-height: 44px; }
+}

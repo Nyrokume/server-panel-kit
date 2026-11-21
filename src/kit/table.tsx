@@ -100,7 +100,7 @@ export function DataList<T>({ columns, rows, rowKey, onRowClick, sortKey, sortDi
       {/* card view (mobile) */}
       <ul className="divide-y divide-line md:hidden">
         {rows.map((r) => (
-          <li key={rowKey(r)} className={cn('flex flex-col gap-2 p-4', onRowClick && 'cursor-pointer transition-colors active:bg-surface')} onClick={onRowClick ? () => onRowClick(r) : undefined}>
+          <li key={rowKey(r)} className={cn('flex min-h-11 flex-col gap-2 p-4', onRowClick && 'cursor-pointer transition-colors active:bg-surface')} onClick={onRowClick ? () => onRowClick(r) : undefined}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 {primary && <div className="font-medium text-fg">{primary.cell(r)}</div>}
@@ -111,7 +111,7 @@ export function DataList<T>({ columns, rows, rowKey, onRowClick, sortKey, sortDi
             <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5">
               {cardCols.map((c) => (
                 <div key={c.key} className={cn('flex min-w-0 flex-col gap-0.5', c.wide && 'col-span-2')}>
-                  <dt className="text-[11px] uppercase tracking-wide text-faint">{c.header}</dt>
+                  <dt className="text-[11px] text-faint">{c.header}</dt>
                   <dd className={cn('text-sm text-fg', c.align === 'right' && 'tnum')}>{c.cell(r)}</dd>
                 </div>
               ))}

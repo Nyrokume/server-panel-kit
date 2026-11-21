@@ -6,6 +6,8 @@ import {
 import { useTheme } from '@/lib/theme'
 import { useLive } from '@/lib/live'
 import { tenants } from '@/lib/mock'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 function ToggleRow({ title, hint, checked, defaultChecked, onCheckedChange }: {
   title: string; hint: string; checked?: boolean; defaultChecked?: boolean; onCheckedChange?: (v: boolean) => void
@@ -23,7 +25,14 @@ export default function Settings() {
   const { paused, setPaused } = useLive()
   const [interval, setIntervalV] = useState(2)
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Настройки" lead="Параметры организации и сессии. Сохранения остаются в этой вкладке браузера." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Настройки" description="Параметры организации, безопасности и мониторинга. Демо: изменения не сохраняются на сервере." />
 
@@ -92,5 +101,6 @@ export default function Settings() {
         </TabsPanel>
       </Tabs>
     </>
+    </Workbench>
   )
 }

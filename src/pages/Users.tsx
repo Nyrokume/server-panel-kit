@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
-import { PageHeader, KpiStrip, Stat, Input, Segmented, Button, Chip, StatusDot, DataList, ConfirmDialog, toast, Panel, SectionHeader, InfoRow, type Column } from '@/kit'
+import { PageHeader, KpiStrip, Stat, Input, Segmented, Button, Chip, StatusDot, DataList, ConfirmDialog, toast, InfoRow, type Column } from '@/kit'
 import { users as allUsers, roleScopes, tenants, type User, type Role } from '@/lib/mock'
 import { ago, plural } from '@/lib/format'
 import { Search, ShieldCheck, ShieldOff, UserPlus } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 const roleTone: Record<Role, 'accent' | 'ok' | 'neutral'> = { 'Владелец': 'accent', 'Администратор': 'accent', 'Оператор': 'ok', 'Наблюдатель': 'neutral' }
 
@@ -34,7 +36,20 @@ export default function Users() {
       : <span className="flex items-center gap-2"><StatusDot status={u.status === 'активен' ? 'online' : u.status === 'приглашён' ? 'warning' : 'offline'} withLabel={false} /><span className="text-fg">{u.status}</span><span className="text-xs text-muted">· {ago(u.lastSeen)}</span></span> },
   ]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Пользователи и роли" lead="Кто имеет доступ к пульту. Приглашения и роли в этом демо не меняют внешние каталоги." />
+      <div className="border-t border-line px-4 py-3.5">
+        <div className="text-[13px] font-medium text-fg">Область ролей</div>
+        <div className="mt-2">
+          {(Object.keys(roleScopes) as Role[]).map((r) => <InfoRow key={r} k={<Chip tone={roleTone[r]}>{r}</Chip>} v={<span className="text-xs">{roleScopes[r]}</span>} />)}
+        </div>
+      </div>
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Пользователи и роли" description="Доступ к пульту управления парком. Роли задают область действий.">
         <ConfirmDialog trigger={<Button variant="outline"><UserPlus className="size-4" /> Пригласить</Button>}
@@ -50,25 +65,22 @@ export default function Users() {
         <Stat label="Без 2ФА" value={noMfa} note={noMfa ? 'рекомендуется включить' : 'все защищены'} />
       </KpiStrip>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative min-w-56 flex-1">
-              <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя, e-mail, роль…" className="pl-8" />
-            </div>
-            <Segmented value={roleF} onValueChange={setRoleF} ariaLabel="Роль"
-              options={[{ value: 'all', label: 'Все' }, { value: 'Администратор', label: 'Админы' }, { value: 'Оператор', label: 'Операторы' }, { value: 'Наблюдатель', label: 'Наблюдатели' }]} />
-          </div>
-          <DataList columns={columns} rows={rows} rowKey={(u) => u.id}
-            rowActions={(u) => <Button variant="ghost" size="sm" onClick={() => toggle(u)}>{disabled.has(u.id) ? 'Включить' : 'Отключить'}</Button>}
-            footer={`${rows.length} ${plural(rows.length, ['пользователь', 'пользователя', 'пользователей'])}.`} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative min-w-56 flex-1">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя, e-mail, роль…" className="pl-8" />
         </div>
-        <Panel flush className="p-4 h-fit xl:sticky xl:top-20">
-          <SectionHeader as="h2" title="Область ролей" className="mb-2" />
-          {(Object.keys(roleScopes) as Role[]).map((r) => <InfoRow key={r} k={<Chip tone={roleTone[r]}>{r}</Chip>} v={<span className="text-xs">{roleScopes[r]}</span>} />)}
-        </Panel>
+        <Segmented value={roleF} onValueChange={setRoleF} ariaLabel="Роль"
+          options={[{ value: 'all', label: 'Все' }, { value: 'Администратор', label: 'Админы' }, { value: 'Оператор', label: 'Операторы' }, { value: 'Наблюдатель', label: 'Наблюдатели' }]} />
       </div>
+      <DataList columns={columns} rows={rows} rowKey={(u) => u.id}
+        rowActions={(u) => (
+          <Button variant="ghost" size="sm" className="whitespace-nowrap" onClick={() => toggle(u)}>
+            {disabled.has(u.id) ? 'Включить' : 'Отключить'}
+          </Button>
+        )}
+        footer={`${rows.length} ${plural(rows.length, ['пользователь', 'пользователя', 'пользователей'])}.`} />
     </>
+    </Workbench>
   )
 }

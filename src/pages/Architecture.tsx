@@ -3,6 +3,8 @@ import { PageHeader, Segmented, Select, SelectItem, Button, IconButton, Panel, S
 import { cn } from '@/kit/cn'
 import { nodes, edges, scenarios, edgeBetween, type NodeId, type ScenarioId, type Step, type ArchEdge } from '@/lib/architecture'
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, Shield } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 /* ------------------------------------------------------------ geometry */
 const W = 182, H = 66
@@ -107,7 +109,14 @@ export default function Architecture() {
     { key: 'text', header: 'Что происходит', wide: true, cell: (s) => <span className="text-muted">{s.text}</span> },
   ]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Схема взаимодействия" lead="Как пульты, агенты и организации связаны. Это схема демо-данных." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Схема взаимодействия" description="Как команда оператора доходит до ПК и возвращается: шлюз с SSO и ролями, брокер заданий, агент на машине, телеметрия и аудит. Наведите или нажмите на узел, запустите сценарий." />
 
@@ -274,5 +283,6 @@ export default function Architecture() {
           footer="Демо-архитектура: ни один компонент не подключён к реальным машинам." />
       </section>
     </>
+    </Workbench>
   )
 }

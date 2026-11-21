@@ -88,9 +88,9 @@ export function EmptyState({ icon: Icon, title, description, action, className }
 /* InfoRow — строка «ключ · значение» в паспортах, с тонким пунктиром. */
 export function InfoRow({ k, v }: { k: React.ReactNode; v: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-dashed border-line py-1.5 text-sm last:border-0">
-      <span className="min-w-0 shrink-0 text-muted">{k}</span>
-      <span className="min-w-0 text-right font-medium text-fg">{v}</span>
+    <div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden border-b border-dashed border-line py-1.5 text-sm last:border-0">
+      <span className="shrink-0 text-muted">{k}</span>
+      <span className="min-w-0 truncate text-right font-medium text-fg">{v}</span>
     </div>
   )
 }

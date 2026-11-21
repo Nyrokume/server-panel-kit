@@ -8,6 +8,8 @@ import { fleetFor } from '@/lib/live'
 import { fakeScreen } from '@/lib/fakescreen'
 import { fmtTime } from '@/lib/format'
 import { ShieldAlert, Search, RefreshCw, Camera, X, MonitorOff } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 export default function Screen() {
   const { tenant } = useAppState()
@@ -29,7 +31,14 @@ export default function Screen() {
   const fsMachine = fleet.find((m) => m.id === fsId)
   const snapshot = (name: string) => toast.success(`Снимок экрана ${name} сохранён`, 'Демо: изображение сгенерировано, реальный экран не захватывается.')
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Просмотр экрана" lead="Демо-кадры рабочих столов. Это не захват реального экрана." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Просмотр экрана" description="Миниатюры экранов включённых машин. Откройте на весь экран, выберите интервал обновления и делайте снимки.">
         <Segmented value={String(interval)} onValueChange={(v) => setIntervalMs(Number(v))} ariaLabel="Интервал обновления"
@@ -80,5 +89,6 @@ export default function Screen() {
         </DialogContent>
       </Dialog>
     </>
+    </Workbench>
   )
 }

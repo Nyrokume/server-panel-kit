@@ -21,6 +21,8 @@ import { machineById, volumesFor, procsFor } from '@/lib/mock'
 import { useMachineLive } from '@/lib/live'
 import { fmtNumber, fmtUptime, fmtBytes, fmtDelta } from '@/lib/format'
 import { Terminal as TerminalIcon, MonitorPlay, ArrowLeft, ChevronRight } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 export default function MachineDetail() {
   const { id = '' } = useParams()
@@ -33,7 +35,7 @@ export default function MachineDetail() {
 
   if (!machine) {
     return (
-      <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-col items-start gap-3 p-4 sm:p-6">
         <PageHeader title="Машина не найдена" description="Возможно, устройство выведено из эксплуатации." />
         <Button asChild variant="outline"><Link to="/machines"><ArrowLeft className="size-4" /> К списку машин</Link></Button>
       </div>
@@ -44,7 +46,21 @@ export default function MachineDetail() {
   const procs = procsFor(machine).slice(0, 6)
   const prev = history[history.length - 7]
 
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title={machine.name} lead={`${machine.role}. Лидер или агент: v${machine.agent}.`} />
+      <div className="space-y-1.5 border-t border-line px-4 py-3 text-sm">
+        <div className="flex justify-between gap-3"><span className="text-muted">Адрес</span><span className="font-mono text-fg">{machine.ip}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-muted">ОС</span><span className="text-right text-fg">{machine.os}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-muted">Площадка</span><span className="text-right text-fg">{machine.site}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-muted">Владелец</span><span className="text-right text-fg">{machine.owner}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-muted">CPU</span><span className="text-right font-mono text-fg">{machine.cpuModel}</span></div>
+      </div>
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <nav className="flex items-center gap-1 text-sm text-muted">
         <Link to="/machines" className="hover:text-fg">Машины</Link><ChevronRight className="size-3.5" /><span className="text-fg">{machine.name}</span>
@@ -130,5 +146,6 @@ export default function MachineDetail() {
         </TabsPanel>
       </Tabs>
     </>
+    </Workbench>
   )
 }

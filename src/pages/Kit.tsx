@@ -8,6 +8,8 @@ import {
   DataList, type Column, ChartFrame, TimeLine, Bars, VizTable, toast,
 } from '@/kit'
 import { Inbox, Camera, Plus, MoreHorizontal } from 'lucide-react'
+import { Workbench } from '@/components/app/workbench'
+import { InspectorShell, InspectorHead } from '@/components/app/inspector'
 
 const swatches: [string, string][] = [
   ['bg', '--pk-bg'], ['surface', '--pk-surface'], ['raised', '--pk-raised'], ['line', '--pk-line'],
@@ -40,7 +42,14 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 export default function Kit() {
   const [seg, setSeg] = useState('day')
   const [tab, setTab] = useState('a')
+  const inspector = (
+    <InspectorShell>
+      <InspectorHead title="Panel kit" lead="Язык «Карта парка»: Onest и JetBrains Mono, фиолет только для выбора, фокуса и логотипа." />
+    </InspectorShell>
+  )
+
   return (
+    <Workbench inspector={inspector}>
     <>
       <PageHeader title="Panel kit" description="Живой гайд по дизайн-системе проекта: токены, примитивы и блоки. Собственный набор поверх headless-примитивов, без дефолтной библиотеки.">
         <Chip tone="accent">v2 · минимализм</Chip>
@@ -177,5 +186,6 @@ export default function Kit() {
       <Divider />
       <p className="text-xs text-muted">Полная документация — в <span className="font-mono text-fg">src/kit/README.md</span>.</p>
     </>
+    </Workbench>
   )
 }
